@@ -24,6 +24,10 @@
           }
         ]
       },
+      "fs": {
+        "all": true,
+        "scope": ["$APPDATA/*"]
+      },
       "window": {
         "startDragging": true,
         "close": true,
@@ -54,7 +58,6 @@
         "height": 1000,
         "transparent": true,
         "decorations": false,
-        "alwaysOnTop": true,
         "x": 0,
         "y": 0
       }

@@ -5,6 +5,7 @@ import Greet from "./components/Greet.vue";
 </script>
 
 <template>
+  
   <div class="top-bar flex-apart light-container" data-tauri-drag-region>
     <div>
       <span class="text f-large f-bold" style="margin-left:20px">Welcome</span>
@@ -17,44 +18,17 @@ import Greet from "./components/Greet.vue";
     </div>
     
   </div>
-  <div style="margin-top:10px">
+  <div style="margin-top:10px;">
     <div class="flex-center" style="overflow-y:hidden" :style="loading ? 'max-height:100vh' : 'max-height:0px'">
       <Lottie :src="'Loading.json'" :mode="'loop'" style="width:200px;margin-top:10px;opacity:0.6" :background="'transparent'"/>
       
     </div>
-    <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 20px" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
+    <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
 
-      <div style="width:50%;border-radius: 16px;">
-        <div class="flex-apart" style="margin:0px 20px;margin-bottom:10px">
-          <span class="text f-large f-bold" style="margin-top:10px">Schedule</span>
-          <Lottie :src="'Calendar.json'" :mode="'loop'" style="width:60px;margin-top:10px" :background="'transparent'"/>
-          <div style="position:relative">
-            <Lottie :src="'KeyHold.json'" :key="'n'" :speed="1.5" :mode="'keyhold'" style="width:40px;margin-top:10px" :background="'transparent'"/>
-            <div style="position: absolute;top:10px;left:0;width:40px;height:40px" class="flex-center">
-              <span class="text-dark f-small f-bold">N</span>
-            </div>
-          </div>
-          
-        </div>
-        <div class="flex-center" style="flex-wrap: wrap;">
-          <ScheduleItem style="margin:5px" v-for="item in schedule" :data="item"/>
-        </div>
-        
-      </div>
-      <div style="width:30%;border-radius: 16px;">
-        <div class="flex-center" style="margin:0px 5px;margin-bottom: 10px;">
-          <input class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Add To-Do Item"/>
-          <Lottie :src="'AddDown2.json'" :mode="'click'" style="width:30px;margin-left:15px" :background="'transparent'"/>
-        </div>  
-        <div>
-          <div class="flex-apart">
-            <span class="text f-medium" style="margin-top:10px">Do this thing!</span>
-            <Lottie :src="'Checkbox2.json'" :mode="'toggle'" style="width:30px;margin-top:10px" :background="'transparent'"/>
-          </div>
-          
-        </div>
-        
-      </div>
+      <Schedule @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
+      
+      <!-- <Checklist /> -->
+      <Checklist @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:50%;height:40vh' : 'width:30%;height:70vh'" />
       
     </div>
     
@@ -87,13 +61,21 @@ import Greet from "./components/Greet.vue";
         <div style="background-color: white;opacity:0.6;height:20px;width:4px;border-radius: 4px;margin:0px 5px">
           
         </div>
-        <input @change="setLight($event.srcElement.value)" class="raised-container transparent-border text f-small" style="width:40px;margin-left:5px;margin-right:2px" placeholder="LGT"/>
+        <input @change="setLight($event.srcElement.value)" class="light-container transparent-border text f-small" style="width:40px;margin-left:5px;margin-right:2px" placeholder="LGT"/>
         <span class="text f-small">%</span>
 
 
       </div>
     </div>
     
+  </div>
+
+  <div class="bottom-popup" :style="showPopup ? 'right: 0px;opacity:1' :'right:-1000px;opacity:0'">
+    <component @confirm="handlePopupConfirm($event)" @close="closePopup();" :data="popupData" :is="popup"/>
+  </div>
+
+  <div class="bottom-encouragement flex-center" v-for="ec in encouragements" :key="ec.id">
+    <span class="text f-large" :class="getRandomFloatClass()">{{ ec.text }}</span>
   </div>
   
   
@@ -102,8 +84,21 @@ import Greet from "./components/Greet.vue";
 
 <script>
 
+
+// main component is the schedule, it controls the layout of everything else
+// various components are addons at different points around the rest of the screen
+// they are given a priority that controls the size of the single component (which is controlled by the size of the schedule)
+
+
+
+
+import CreateSchedule from "./components/CreateSchedule.vue";
+import DeleteScheduleItem from "./components/DeleteScheduleItem.vue";
+
 import { appWindow } from "@tauri-apps/api/window";
 import { Command } from '@tauri-apps/api/shell';
+
+import { writeTextFile, BaseDirectory, readTextFile } from '@tauri-apps/api/fs';
 
 
 
@@ -112,21 +107,20 @@ export default {
   data() {
     return {
       schedule: [
-        {
-          title: "UN1015",
-          description: "This is a required class",
-          timeEnd: new Date('7/27/2023 23:56:20'),
-          timeStart: new Date('7/27/2023 15:53:00')
-        },
-        {
-          title: "UN1016",
-          description: "This is a required class",
-          timeEnd: new Date(),
-          timeStart: new Date()
-        }
+        
       ],
       loading: true,
-      colors: ["red", "amber", "yellow", "green", "blue", "white"]
+      colors: ["red", "amber", "yellow", "green", "blue", "white"],
+      popups: [CreateSchedule, DeleteScheduleItem],
+      popup: CreateSchedule,
+      showPopup: false,
+      endOfToday: new Date().setHours(23,59,59,999),
+      popupData: null,
+      callbacks: {
+        schedule: () => {}
+      },
+      encouragements: [],
+      sizeMode: "schedule-top"
     }
   },
   methods: {
@@ -135,6 +129,48 @@ export default {
         appWindow.close();
       }, 500);
       
+    },
+    setSizeMode(mode){
+      this.sizeMode = mode;
+
+      this.callbacks.checklist({
+        event: 'viewMode',
+        data: mode
+      })
+    },
+    generateId(){
+            return Math.random().toString(36).substr(2, 9);
+        
+        },
+    addEncouragement(text){
+      var id = this.generateId();
+      this.encouragements.push({
+        text: text,
+        id: id
+      });
+      setTimeout(() => {
+        this.encouragements = this.encouragements.filter((e) => {
+          return e.id != id;
+        });
+      }, 1400);
+    },
+    getRandomFloatClass(){
+      // get either anim-randomFloat1, anim-randomFloat2, or anim-randomFloat3
+      var num = Math.floor(Math.random() * 3) + 1;
+      return "anim-randomFloat" + num;
+    },
+    setCB(name, cb){
+      this.callbacks[name] = cb;
+    },
+    handlePopupConfirm(e){
+      if(e.type == 'create'){
+        this.callbacks.schedule('createEvent', e.data);
+      }else if(e.type == 'deleteOne'){
+        this.callbacks.schedule('deleteOneEvent', e.data);
+      }
+      else if(e.type == 'deleteAll'){
+        this.callbacks.schedule('deleteAllEvents', e.data);
+      }
     },
     minimizeApp(){
       setTimeout(() => {
@@ -155,7 +191,7 @@ export default {
         return;
       }
 
-      await new Command('led', ["led", "power", color]).execute();
+      await new Command('led', ["led", "power", color == "blue" ? "white" : color]).execute();
       await new Command('led', ["led", "right", color]).execute();
       await new Command('led', ["led", "left", color]).execute();
     },
@@ -165,12 +201,42 @@ export default {
       }
       await new Command('led', ["pwmsetkblight", percent.toString()]).execute();
       
+    },
+    openPopup(index){
+
+      if(this.showPopup){
+        this.closePopup();
+        setTimeout(() => {
+          this.openPopup(index);
+        }, 500);
+        
+        return;
+      }
+
+      this.popup = this.popups[index];
+      setTimeout(() => {
+        this.showPopup = true;
+      }, 100);
+      
+    },
+    openPopupWithData(index, data){
+      this.popupData = data;
+      this.openPopup(index);
+    },
+    closePopup(){
+      this.showPopup = false;
+      this.popupData = null;
+      setTimeout(() => this.popup = null, 500);
     }
   },
   mounted(){
     setTimeout(() => {
       this.loading = false;
     }, 1000)
+
+
+
+
   }
 }
 </script>
