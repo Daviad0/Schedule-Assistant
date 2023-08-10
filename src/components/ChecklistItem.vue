@@ -1,9 +1,9 @@
 <template>
-    <div style="margin: 10px 20px;">
+    <div style="overflow-y: hidden;overflow-x:hidden" :style="closing ? 'max-height:0px;margin:0px;opacity:0': 'max-height:100%;margin:0px 20px;margin-bottom:10px;opacity:1'">
         <div class="flex-apart">
             <div style="width:100%">
                 <div class="flex-center" :style="data.checkedAt != undefined ? 'opacity:0.7' : 'opacity:1'" style="justify-content: left;">
-                    <span class="text f-medium f-bold" :style="data.checkedAt != undefined ? 'text-decoration: line-through;' : ''" style="text-align: left;margin-right:10px;">{{ data.name }}</span>
+                    <span class="text f-medium f-bold" :style="data.checkedAt != undefined ? 'text-decoration: line-through;' : ''" style="text-align: left;margin-right:10px;white-space: none;">{{ data.name }}</span>
                     <Tag :name="data.category" v-if="data.category != ''"/>
                     
                     
@@ -13,7 +13,7 @@
                         <span class="text f-small" style="white-space: nowrap;">Completed On {{ this.data.checkedAt == undefined ? getShortDateTimeCompleted(cacheCheckTime) : getShortDateTimeCompleted(this.data.checkedAt) }}</span>
                     </div>
                     <div class="bg-transparent" style="height:8px" :style="this.data.checkedAt == undefined ? 'width:80%;border-radius: 8px 0px 0px 8px;' : 'width:30%;border-radius: 8px;'">
-                        <div :class="this.data.checkedAt == undefined ? 'bg-main' : 'bg-transparent'" style="height:8px;" :style="'width:' + (this.shorthandTimeLeft == 'Due' ? 100 : progressOfTime) + '%;' + (progressOfTime == 100 ? 'border-radius: 8px 0px 0px 8px;' : 'border-radius: 8px;')">
+                        <div :class="this.data.checkedAt == undefined ? 'bg-main' + ((this.shorthandTimeLeft == 'Due' ? 100 : progressOfTime) > 90 ? ' anim-bg-main-flash' : '') : 'bg-transparent'" style="height:8px;" :style="'width:' + (this.shorthandTimeLeft == 'Due' ? 100 : progressOfTime) + '%;' + (progressOfTime == 100 ? 'border-radius: 8px 0px 0px 8px;' : 'border-radius: 8px;')">
                             
                         </div>
                     </div>
@@ -29,7 +29,7 @@
             
             <Lottie :toggledinit="shouldBeChecked" :key="shouldBeChecked" @toggle="setChecklistItemStatus($event)" :src="'Checkbox2.json'" :mode="'toggle'" style="width:30px;margin-left:15px" :style="data.checkedAt != undefined ? 'opacity: 0.7' : 'opacity:1'" :background="'transparent'"/>
         </div>
-        
+        <hr class="text" style="opacity: 0.2;margin-top:10px;margin-bottom: 0px;"/>
     </div>
 </template>
 <script>
@@ -43,7 +43,8 @@ export default {
             cacheCheckTime: undefined,
             shorthandTimeLeft: '',
             progressOfTime: 0,
-            shouldBeChecked: false
+            shouldBeChecked: false,
+            closing: false
         }
     },
     mounted(){
@@ -66,7 +67,22 @@ export default {
 
         setTimeout(() => {
             this.shouldBeChecked = this.data.checkedAt != undefined;
+            
+            
+            
         }, 100);
+
+        setInterval(() => {
+            if(this.data.checkedAt != undefined && (new Date().getTime() - this.data.checkedAt.getTime()) > 1000*60*10){
+                this.closing = true;
+                setTimeout(() => {
+                    this.$emit('event', {
+                        event: 'deleted',
+                        data: this.data
+                    });
+                }, 1000);
+            }
+        }, 1000);
         
     },
     methods: {

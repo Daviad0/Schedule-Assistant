@@ -1,12 +1,12 @@
 <template>
-    <div class="raised-container" style="width:500px">
+    <div class="raised-container blur-bg" style="width:500px">
 
 
         
 
 
         <div class="flex-apart" style="margin:15px 10px">
-            <span class="text f-medium f-bold">Create Schedule Item</span>
+            <span class="text f-medium f-bold">{{this.data == undefined ? 'Create Schedule Item' : 'Edit Schedule Item'}}</span>
             <div class="flex-center">
                 <Lottie @click="createEvent()" :style="validToCreate ? 'opacity: 1' : 'opacity:0'"  :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'" style="width:40px"/>
                 <Lottie @click="closePopup()"  :src="'Cancel.json'" :mode="'click'" :background="'transparent'" style="width:40px"/>
@@ -16,7 +16,7 @@
         <div class="flex-apart" style="margin:10px 5px">
             <div style="width:50%">
                 <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px">Event Title</span>
-                <input @change="updateEventDetails('title', $event.srcElement.value)" class="light-container transparent-border text f-medium" style="text-align: left" placeholder="Really Cool Class"/>
+                <input ref="title" @change="updateEventDetails('title', $event.srcElement.value)" class="light-container transparent-border text f-medium" style="text-align: left" placeholder="Really Cool Class"/>
             </div>
             
             <div class="flex-center" style="width:50%">
@@ -35,7 +35,7 @@
         <div class="flex-apart" style="margin:5px">
             <div style="width:40%">
                 <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px">Schedule As</span>
-                <Dropdown :options="['Single Event', 'Recurring Event']" @change="updateEventMode($event)" :optionids="['single', 'recurring']" :placeholder="'Event Type'"/>
+                <Dropdown ref="eventMode" :value="this.data == undefined ? undefined : (this.data.recurringData == undefined ? 'single' : 'recurring')" :options="['Single Event', 'Recurring Event']" @change="updateEventMode($event)" :optionids="['single', 'recurring']" :placeholder="'Event Type'"/>
             </div>
             <div style="width:55%;overflow-x: hidden;" class="flex-center">
                 <div :style="this.eventMode == 'single' ? 'max-width:100%;max-height:100%;opacity:1' : 'max-width:0px;max-height:0px;opacity:0'" style="overflow:hidden">
@@ -72,7 +72,7 @@
         </div>
         <div style="margin:5px">
             <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Description</span>
-            <textarea class="light-container transparent-border text f-small" @change="updateEventDetails('description', $event.srcElement.value)" style="resize: none;width: 95%;height:80px"></textarea>
+            <textarea ref="description" class="light-container transparent-border text f-small" @change="updateEventDetails('description', $event.srcElement.value)" style="resize: none;width: 95%;height:80px"></textarea>
         </div>
         
     </div>
@@ -99,6 +99,44 @@ export default {
             },
             validToCreate: false
         }
+    },
+    mounted(){
+
+        setTimeout(() => {
+            console.log(this.data);
+            if(this.data != undefined && this.data != null){
+                this.eventMode = this.data.recurringData != undefined ? 'recurring' : 'single';
+                
+                this.updateEventDetails('eventMode', this.data.recurringData != undefined ? 'recurring' : 'single');
+                this.updateEventDetails('title', this.data.title);
+                this.updateEventDetails('description', this.data.description);
+                
+
+                this.$refs.title.value = this.data.title;
+                this.$refs.description.value = this.data.description;
+                //this.$refs.eventMode.value = this.data.recurringData != undefined ? 'recurring' : 'single';
+                if(this.data.recurringData != undefined){
+                    this.daysOfWeekSelected = this.data.recurringData.daysOfWeek;
+                    // put startDate in the correct format for a date input
+                    this.$refs.startDate.value = this.data.recurringData.startDate;
+                    this.$refs.endDate.value = this.data.recurringData.endDate;
+                    this.updateEventDetails('startDate', this.data.recurringData.startDate);
+                    this.updateEventDetails('endDate', this.data.recurringData.endDate);
+                    this.updateEventDetails('daysOfWeek', this.data.recurringData.daysOfWeek);
+                }
+                // this.$refs.startDate.value = this.data.startDate;
+                // this.$refs.endDate.value = this.data.endDate;
+                // this.$refs.startDateSingle.value = this.data.startDate;
+
+                // put startTime (which is a date object) into the correct format for a time input
+                this.$refs.startTime.value = this.data.startTime.toTimeString().split(" ")[0];
+                this.updateEventDetails('startTime', this.data.startTime.toTimeString().split(" ")[0]);
+                this.$refs.endTime.value = this.data.endTime.toTimeString().split(" ")[0];
+                this.updateEventDetails('endTime', this.data.endTime.toTimeString().split(" ")[0]);
+            }
+        }, 100);
+        
+        
     },
     methods: {
         updateEventMode(mode){

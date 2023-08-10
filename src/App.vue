@@ -6,7 +6,7 @@ import Greet from "./components/Greet.vue";
 
 <template>
   
-  <div class="top-bar flex-apart light-container" data-tauri-drag-region>
+  <div class="top-bar flex-apart light-container" style="padding:5px" data-tauri-drag-region>
     <div>
       <span class="text f-large f-bold" style="margin-left:20px">Welcome</span>
 
@@ -70,13 +70,26 @@ import Greet from "./components/Greet.vue";
     
   </div>
 
-  <div class="bottom-popup" :style="showPopup ? 'right: 0px;opacity:1' :'right:-1000px;opacity:0'">
+  <div class="bottom-popup" :style="showPopup ? 'right: 20px;opacity:1' :'right:-1000px;opacity:0'">
     <component @confirm="handlePopupConfirm($event)" @close="closePopup();" :data="popupData" :is="popup"/>
   </div>
 
   <div class="bottom-encouragement flex-center" v-for="ec in encouragements" :key="ec.id">
-    <span class="text f-large" :class="getRandomFloatClass()">{{ ec.text }}</span>
+    <div class="raised-container blur-bg" style="border-radius: 20px;padding:6px 14px" :class="getRandomFloatClass()">
+      <span class="text f-large">{{ ec.text }}</span>
+    </div>
+    
   </div>
+
+  <div style="position: absolute;" :style="showOverlay ? '' : 'display:none'">
+    <div class="overlay-bg">
+
+    </div>
+    <div class="overlay">
+      <SettingsOverlay/>
+    </div>
+  </div>
+  
   
   
   
@@ -120,7 +133,8 @@ export default {
         schedule: () => {}
       },
       encouragements: [],
-      sizeMode: "schedule-top"
+      sizeMode: "schedule-top",
+      showOverlay: true
     }
   },
   methods: {
@@ -130,6 +144,7 @@ export default {
       }, 500);
       
     },
+    
     setSizeMode(mode){
       this.sizeMode = mode;
 
@@ -220,19 +235,32 @@ export default {
       
     },
     openPopupWithData(index, data){
+
+      if(this.showPopup){
+        this.closePopup();
+        setTimeout(() => {
+          this.openPopupWithData(index, data);
+        }, 500);
+        
+        return;
+      }
+
+
       this.popupData = data;
       this.openPopup(index);
     },
     closePopup(){
       this.showPopup = false;
-      this.popupData = null;
-      setTimeout(() => this.popup = null, 500);
+      
+      setTimeout(() => {this.popup = null;this.popupData = null;}, 500);
     }
   },
   mounted(){
     setTimeout(() => {
       this.loading = false;
     }, 1000)
+
+    this.$store.dispatch("loadSettings");
 
 
 

@@ -1,7 +1,7 @@
 <template>
-    <div style="margin:20px" ref="base">
-        <div>
-            <div>
+    <div style="margin:20px;height:100%" ref="base">
+        <div style="height:100%;flex-direction: column;justify-content: start;" class="flex-center">
+            <div style="width:100%">
                 <div class="flex-center" style="margin:0px 5px;margin-bottom: 10px;">
                     <input v-on:keydown.enter="createItem()" @keyup="updateName($event.srcElement.value)" ref="name" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Add To-Do Item"/>
                     <Lottie @click="createItem()" :src="'AddDown2.json'" :mode="'click'" style="width:30px;margin-left:15px" :background="'transparent'"/>
@@ -22,31 +22,37 @@
             </div>
              
             
-            <div style="margin-top:20px">
-                <div class="flex-center" style="align-items: start" v-if="viewMode == 'schedule-top'">
-                    <div style="width:50%;overflow-y:auto">
+            <div style="margin-top:20px;width:100%;height:100%">
+                <div class="flex-center" style="align-items: start;height:100%" v-if="viewMode == 'schedule-top'">
+                    <div style="width:50%;overflow-y:auto"  :style="showExtraDetails ? 'max-height:60%' : 'max-height:80%'">
                         <div v-for="item in highPriorityItems()">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
-                            <hr class="text" style="opacity: 0.2;margin:0px 20px"/>
+                            
                             
                         </div>
                     </div>
-                    <div style="width:50%;overflow-y:scroll">
+                    <div style="width:50%;overflow-y:auto" :style="showExtraDetails ? 'max-height:60%' : 'max-height:80%'">
                         <div v-for="item in lowPriorityItems()">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
-                            <hr class="text" style="opacity: 0.2;margin:0px 20px"/>
+                            
                             
                         </div>
                     </div>
                     
                 </div>
-                <div v-if="viewMode == 'schedule-side'" style="overflow-y:scroll">
-                    <div v-for="item in items" >
+                <div v-if="viewMode == 'schedule-side'" style="overflow-y:auto;" :style="showExtraDetails ? 'max-height:80%' : 'max-height:90%'">
+                    <div v-for="item in highPriorityItems()" >
                     
                         <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
-                        <hr class="text" style="opacity: 0.2;margin:0px 20px"/>
+                        
+                        
+                    </div>
+                    <div v-for="item in lowPriorityItems()" >
+                    
+                        <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
+                        
                         
                     </div>
                 </div>
@@ -73,7 +79,7 @@ export default {
             }],
             showExtraDetails: false,
             usedCategories: [],
-            viewMode: "schedule-top"
+            viewMode: "schedule-side"
         }
     },
     methods: {
@@ -120,6 +126,11 @@ export default {
                 }
                 
             }
+            else if(event.event == "deleted"){
+                // remove item from list
+                var index = this.items.findIndex(item => item.createdAt == event.data.createdAt && item.name == event.data.name);
+                if(index != -1) this.items.splice(index, 1);
+            }
             this.saveChecklist();
         },
         randomEncouragementMessage(){
@@ -162,10 +173,16 @@ export default {
             this.$emit('encourage', text);
         },
         highPriorityItems(){
-            return this.items.filter(item => item.dueAt != undefined);
+            var items = this.items.filter(item => item.dueAt != undefined);
+            items.sort((a, b) => a.dueAt - b.dueAt);
+            return items;
         
         },
         lowPriorityItems(){
+            var items = this.items.filter(item => item.dueAt == undefined);
+
+            items.sort((a, b) => a.createdAt - b.createdAt);
+
             return this.items.filter(item => item.dueAt == undefined);
         },
         handleEventsFromAbove(event){

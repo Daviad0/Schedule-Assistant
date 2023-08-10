@@ -1,9 +1,9 @@
 <template>
-    <div style="margin:20px;padding:10px;border-radius: 16px;padding-bottom: 30px;overflow-y:scroll" class="dashed-border">
-        <div class="flex-apart" style="margin:0px 20px;margin-bottom:10px">
+    <div style="margin:20px;padding:10px;border-radius: 16px;padding-bottom: 30px;overflow-y:auto;height:100%;flex-direction: column;overflow-x: hidden;" class="dashed-border flex-apart">
+        <div class="flex-apart" style="margin:0px 10px;margin-bottom:10px;width: 100%;">
             <div class="flex-center">
-                <Lottie @click="openPopup(0, undefined)" :src="'Calendar.json'" :mode="'loop'" style="width:60px;margin-top:10px" :background="'transparent'"/>
-                <span class="text f-large f-bold" style="margin-top:10px">Schedule</span>
+                <Lottie @click="openPopup(0, undefined)" :src="'Calendar.json'" :mode="'loop'" style="width:60px;margin-top:5px" :background="'transparent'"/>
+                <span class="text f-large f-bold" style="margin-top:5px">Schedule</span>
                 
             </div>
           
@@ -16,33 +16,41 @@
           </div>-->
           
         </div>
-        <div class="flex-center">
-            <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'day' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
+        <div style="height:100%;overflow-y:auto;width:100%">
+            <div class="flex-center">
+                <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'week' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
         
-        <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start;">
-          <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in schedule.filter(s => s.startTime < this.endOfToday)" :key="item.id" :data="item"/>
-        </div>
+                    <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start">
+                        <div v-for="dayOfWeek in (this.$store.getters.getSettingValue('sched_week_sun_sat') == 'no' ? [1,2,3,4,5] : [0,1,2,3,4,5,6])" style="width:260px;padding-top:10px;">
+                            <span class="text f-medium f-bold">{{ days[dayOfWeek] }}</span>
+                            <div style="margin-top:15px;width:100%">
+                                <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'small'" @event="scheduleItemEvent($event)" :wrap="true" v-for="item in getEventsOnDay(dayOfWeek)" style="max-width: 100%;" :key="item.id" :data="item"/>
+                                <span class="text f-medium f-bold" style="opacity: 0.7;margin-top:20px" v-if="getEventsOnDay(dayOfWeek).length == 0"><i>No Events</i></span>
+                            </div>
+
+                        
+                        </div>
+                
+                    </div>
+                
+                </div>
+            </div>
+            <div class="flex-center">
+                <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'day' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
         
-      </div>
+                    <div class="flex-center" style="flex-wrap: wrap;align-items: start;">
+                        <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in schedule.filter(s => s.startTime < this.endOfToday)" :key="item.id" :data="item"/>
+                        <span class="text f-medium f-bold" style="opacity: 0.7;" v-if="schedule.filter(s => s.startTime < this.endOfToday && s.deleted != true).length == 0"><i>No Events</i></span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
         </div>
   
-      <div class="flex-center">
-        <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'week' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
         
-        <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start;">
-            <div v-for="dayOfWeek in [0,1,2,3,4,5,6]" style="width:260px;padding-top:10px">
-                <span class="text f-medium f-bold">{{ days[dayOfWeek] }}</span>
-                <div style="margin-top:10px">
-                    <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'small'" @event="scheduleItemEvent($event)" :wrap="true" v-for="item in getEventsOnDay(dayOfWeek)" style="max-width: 100%;" :key="item.id" :data="item"/>
-                </div>
-                
-            </div>
-          
-        </div>
-        
-      </div>
-    </div>  
-      </div>
+    </div>
     
     
 </template>
@@ -56,7 +64,7 @@ export default {
             viewType: 'week',
             days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
             endOfToday: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 23, 59, 59, 999),
-            endOfWeek: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (7-new Date().getDay()), 23, 59, 59, 999)
+            endOfWeek: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (6-new Date().getDay()), 23, 59, 59, 999)
         }
     },
     methods: {
@@ -141,7 +149,6 @@ export default {
                 console.log(e);
             }
 
-            console.log(objects);
             
             var finalSchedule = [];
             objects.forEach(e => {
@@ -169,10 +176,12 @@ export default {
             var events = [];
             this.schedule.forEach(e => {
                 // check if the event is on day of week and is on THIS WEEK 
-                if(e.startTime.getDay() == dayOfWeek && e.startTime < this.endOfWeek){
+                if(e.startTime.getDay() == dayOfWeek && e.startTime < this.endOfWeek && e.deleted != true){
                     events.push(e);
                 }
             });
+
+            events.sort((a, b) => a.startTime - b.startTime); 
 
             return events;
         }
@@ -182,7 +191,7 @@ export default {
 
         setInterval(() => {
             this.endOfToday = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 23, 59, 59, 999);
-            this.endOfWeek = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (7-new Date().getDay()), 23, 59, 59, 999);
+            this.endOfWeek = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (6-new Date().getDay()), 23, 59, 59, 999);
         }, 20000);
 
         this.$emit("setcb", this.handleEventsFromAbove);

@@ -46,12 +46,12 @@
         <div style="margin-top:10px">
             <span class="text f-tiny" style="white-space:normal;"><i>{{data.description}}</i></span>
         </div>
-        <div class="flex-center" style="margin-left:15px" v-if="!finished">
+        <div class="flex-center" style="margin-left:5px" v-if="!finished">
                 <Lottie :src="'Edit.json'" :mode="'hover'" :loop="true" :background="'transparent'" style="width:20px;transform:rotate(45deg);margin:5px" @click="emitScheduleItemChange('edit')" />
                 <Lottie :src="'Trash.json'" :speed="0.5" :mode="'hover'" :loop="true" :background="'transparent'" style="width:40px;margin:5px;margin-right:0px" @click="emitScheduleItemChange('delete')" />
-                <Lottie :src="'Snooze.json'" :mode="'hover'" :loop="true" :background="'transparent'" style="width:40px;margin:5px" />
+                <Lottie :src="'Snooze.json'" v-if="this.$store.getters.getSettingValue('sched_snooze_item_mode') != 'disable'" :mode="'hover'" :loop="true" :background="'transparent'" style="overflow-y:hidden" :style="isActive ? 'width:40px;margin:5px' : 'width:0px;margin:0px'" />
             </div>
-            <div class="flex-center" style="margin-right:5px" v-if="finished">
+            <div class="flex-center" style="margin-right:5px;margin-top:5px" v-if="finished">
                 <Lottie :src="'Finished.json'" :speed="0.5" :mode="'hover'" :loop="true" :background="'transparent'" style="width:30px;margin:5px;margin-right:0px" @click="emitScheduleItemChange('delete')" />
             </div>
         
@@ -69,7 +69,8 @@ export default {
         return {
             isActive: false,
             closing: false,
-            finished: false
+            finished: false,
+            deleted: false
         }
     },
     methods: {
@@ -108,11 +109,12 @@ export default {
 
 
 
-            // if(this.closing == true){
-            //     setTimeout(() => {
-            //         this.$emit("remove", this.data);
-            //     }, 1000);
-            // }
+            if(this.closing == true && this.deleted == false){
+                setTimeout(() => {
+                    this.$emit("remove", this.data);
+                    this.deleted = true;
+                }, 1000);
+            }
 
         },
         emitScheduleItemChange(type){

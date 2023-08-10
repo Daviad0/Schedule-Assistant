@@ -1,7 +1,8 @@
 <template>
-    <div class="light-container transparent-border text cursor-pointer" ref="dropdown" @click="open = !open">
-        <div class="flex-apart">
-            <span class="text f-medium" style="text-align: left;" :style="selected == '' ? 'opacity: 0.6;' : ''" ref="selectedText">{{ selected == '' ? (placeholder == undefined ? "Select an Option" : placeholder) : (getApplicableOption(selected)) }}</span>
+    
+    <div class="light-container transparent-border text cursor-pointer" ref="dropdown" @click="open = !open" >
+        <div class="flex-apart" :style="initwidth != undefined ? 'width:' + initwidth : ''">
+            <span class="text f-medium" style="text-align: left;margin-right:20px" :style="selected == '' ? 'opacity: 0.6;' : ''" ref="selectedText">{{ selected == '' ? (placeholder == undefined ? "Select an Option" : placeholder) : (getApplicableOption(selected)) }}</span>
             <Lottie :src="'Dropdown.json'" :mode="'loop'" style="width:20px" :style="open ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
         </div>
         
@@ -25,7 +26,8 @@ export default {
         options: Array,
         optionids: Array,
         placeholder: String,
-        value: String
+        value: String,
+        initwidth: String
     },
     data(){
         return {
@@ -39,11 +41,12 @@ export default {
             this.optionIds = this.options.map((option, index) => index);
         }
 
-        if(this.value != undefined){
-            this.selected = this.value;
-        }
+        
 
         setTimeout(() => {
+            if(this.value != undefined){
+                this.selected = this.value;
+            }
             this.width = this.$refs.dropdown.clientWidth;
         }, 100);
     },

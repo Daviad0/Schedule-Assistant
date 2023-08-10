@@ -1,5 +1,5 @@
 <template>
-    <div class="raised-container" style="width:500px">
+    <div class="raised-container blur-bg" style="width:500px">
         <div class="flex-apart" style="margin:15px 10px">
             <span class="text f-medium f-bold">Delete Schedule Item</span>
             <div class="flex-center">
@@ -9,7 +9,7 @@
             
         </div>
         <div v-if="data.recurringData != undefined" style="margin:0px 10px">
-            <ButtonGroup @change="changeDeleteMode($event)" :buttons="['Only This Event', 'All Future Occurances']"/>
+            <ButtonGroup @change="changeDeleteMode($event)" :selectedindex="0" :buttons="['Only This Event', 'All Future Occurances']"/>
         </div>
         <div class="solid-border empty-container" style="margin:15px 10px">
             <div class="flex-apart" style="margin:10px">
