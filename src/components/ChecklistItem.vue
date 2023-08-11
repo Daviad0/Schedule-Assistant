@@ -73,7 +73,8 @@ export default {
         }, 100);
 
         setInterval(() => {
-            if(this.data.checkedAt != undefined && (new Date().getTime() - this.data.checkedAt.getTime()) > 1000*60*10){
+            var hideTime = this.$store.getters.getSettingValue('check_hide_completed_items') == undefined ? 0 : parseInt(this.$store.getters.getSettingValue('check_hide_completed_items'));
+            if(this.data.checkedAt != undefined && (new Date().getTime() - this.data.checkedAt.getTime()) > 1000*60*hideTime){
                 this.closing = true;
                 setTimeout(() => {
                     this.$emit('event', {

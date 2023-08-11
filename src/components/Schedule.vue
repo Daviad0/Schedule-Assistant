@@ -111,18 +111,16 @@ export default {
             this.saveSchedule();
         },
         completelyRemoveScheduleItem(obj){
-            //this.schedule = this.schedule.filter(e => e.startTime != obj.startTime && e.id != obj.id);
+            this.schedule = this.schedule.filter(e => e.startTime != obj.startTime && e.id != obj.id);
             this.saveSchedule();
         },
         deleteScheduleItem(obj){
 
-
             this.schedule.forEach(e => {
-                if(e.startTime == obj.startTime && e.id == obj.id){
+                if(e.id == obj.id && e.startTime == obj.startTime){
                     e.deleted = true;
                 }
             });
-
             //this.schedule = this.schedule.filter(e => e.startTime != obj.startTime && e.id != obj.id);
             this.saveSchedule();
         },
@@ -188,6 +186,8 @@ export default {
     },
     mounted() {
         this.readSchedule();
+
+        console.log(this.schedule)
 
         setInterval(() => {
             this.endOfToday = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 23, 59, 59, 999);

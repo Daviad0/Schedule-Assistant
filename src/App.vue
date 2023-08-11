@@ -7,8 +7,9 @@ import Greet from "./components/Greet.vue";
 <template>
   
   <div class="top-bar flex-apart light-container" style="padding:5px" data-tauri-drag-region>
-    <div>
+    <div class="flex-center">
       <span class="text f-large f-bold" style="margin-left:20px">Welcome</span>
+      <Lottie @click="showOverlay = !showOverlay" :src="'Minimize2.json'" :mode="'click'" style="width:60px" :background="'transparent'"/>
 
     </div>
     <div class="flex-center">
@@ -25,10 +26,10 @@ import Greet from "./components/Greet.vue";
     </div>
     <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
 
-      <Schedule @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
+      <Schedule v-if="!loading" @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
       
       <!-- <Checklist /> -->
-      <Checklist @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:50%;height:40vh' : 'width:30%;height:70vh'" />
+      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:50%;height:40vh' : 'width:30%;height:70vh'" />
       
     </div>
     
@@ -86,7 +87,7 @@ import Greet from "./components/Greet.vue";
 
     </div>
     <div class="overlay">
-      <SettingsOverlay/>
+      <SettingsOverlay v-if="showOverlay"/>
     </div>
   </div>
   
@@ -134,7 +135,7 @@ export default {
       },
       encouragements: [],
       sizeMode: "schedule-top",
-      showOverlay: true
+      showOverlay: false
     }
   },
   methods: {
@@ -258,7 +259,7 @@ export default {
   mounted(){
     setTimeout(() => {
       this.loading = false;
-    }, 1000)
+    }, 2000)
 
     this.$store.dispatch("loadSettings");
 

@@ -50,7 +50,7 @@ export default {
         return {
             settings: [
                 {
-                    id: 'sched_week_sun_sat',
+                    id: 'sched_week_sun_sat', // done
                     display: 'Display Saturday & Sunday in Week Mode', 
                     type: 'dropdown',
                     options: [
@@ -70,7 +70,7 @@ export default {
                     ]
                 },
                 {
-                    id: 'sched_week_display_expired_items',
+                    id: 'sched_week_display_expired_items', // done except delete
                     display: 'Display Already Completed Items (in Week Mode)', 
                     type: 'dropdown',
                     options: [
@@ -90,7 +90,7 @@ export default {
                     ]
                 },
                 {
-                    id: 'sched_today_display_expired_items',
+                    id: 'sched_today_display_expired_items', // done except delete
                     display: 'Display Already Completed Items (in Today Mode)', 
                     type: 'dropdown',
                     options: [
@@ -110,7 +110,7 @@ export default {
                     ]
                 },
                 {
-                    id: 'sched_snooze_item_mode',
+                    id: 'sched_snooze_item_mode', // done
                     display: 'Item Snoozing Function', 
                     type: 'dropdown',
                     options: [
@@ -138,7 +138,7 @@ export default {
                     placeholder: '0 = No Flash'
                 },
                 {
-                    id: 'check_hide_completed_items',
+                    id: 'check_hide_completed_items', // done
                     display: 'Minutes to Hide Completed Items', 
                     type: 'number',
                     placeholder: '0 = Instant'

@@ -329,6 +329,23 @@ span{
   animation-delay: 1s;
 }
 
+@keyframes border-main-flash{
+  0% {
+    border: 2px solid #6200ff50;
+  }
+  10% {
+    border: 2px solid #b98eff50;
+  }
+  20% {
+    border: 2px solid #6200ff50;
+  }
+}
+.anim-border-main-flash {
+  animation: border-main-flash 2s ease-in-out infinite;
+  animation-delay: 1s;
+  border: 2px solid #6200ff50;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
   border-radius: 8px;

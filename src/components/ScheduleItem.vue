@@ -1,5 +1,5 @@
 <template>
-    <div class="raised-container" v-if="size == 'regular'" style="overflow:hidden" :style="closing ? 'margin:0px;max-width:0px;max-height:0px;padding:0px;min-width:0px;border:0px solid transparent' : 'padding:10px;min-width:100px;max-width:500px;max-height:500px;margin:5px'" :class="isActive ? 'solid-border' : 'transparent-border'">
+    <div class="raised-container" v-if="size == 'regular'" style="overflow:hidden" :style="closing ? 'margin:0px;max-width:0px;max-height:0px;padding:0px;min-width:0px;border:0px solid transparent' : 'padding:10px;min-width:100px;max-width:500px;max-height:500px;margin:5px'" :class="shouldFlash ? 'anim-border-main-flash':(isActive ? 'solid-border' : 'transparent-border')">
         <div class="flex-apart">
             <div style="margin-left:10px;margin-right:10px">
                 <span class="text f-medium f-bold" :style="wrap == true ? '' : 'white-space: nowrap;'">{{data.title}}</span>
@@ -20,7 +20,7 @@
             <div class="flex-center" style="margin-right:5px" v-if="!finished">
                 <Lottie :src="'Edit.json'" :mode="'hover'" :loop="true" :background="'transparent'" style="width:20px;transform:rotate(45deg);margin:5px" @click="emitScheduleItemChange('edit')" />
                 <Lottie :src="'Trash.json'" :speed="0.5" :mode="'hover'" :loop="true" :background="'transparent'" style="width:40px;margin:5px;margin-right:0px" @click="emitScheduleItemChange('delete')" />
-                <Lottie :src="'Snooze.json'" :mode="'hover'" :loop="true" :background="'transparent'" style="width:40px;margin:5px" />
+                <Lottie :src="'Snooze.json'" v-if="this.$store.getters.getSettingValue('sched_snooze_item_mode') != 'disable'" :mode="'hover'" :loop="true" :background="'transparent'" style="overflow-y:hidden" :style="isActive ? 'width:40px;margin:5px' : 'width:0px;margin:0px'"  />
             </div>
             <div class="flex-center" style="margin-right:5px" v-if="finished">
                 <Lottie :src="'Finished.json'" :speed="0.5" :mode="'hover'" :loop="true" :background="'transparent'" style="width:30px;margin:5px;margin-right:0px" @click="emitScheduleItemChange('delete')" />
@@ -30,7 +30,7 @@
         </div>
         
     </div>
-    <div class="raised-container" v-if="size == 'small'" style="overflow:hidden" :style="closing ? 'margin:0px;max-width:0px;max-height:0px;padding:0px;min-width:0px;border:0px solid transparent' : 'padding:10px;min-width:100px;max-width:500px;max-height:500px;margin:5px;margin-top:10px'" :class="isActive ? 'solid-border' : 'transparent-border'">
+    <div class="raised-container" v-if="size == 'small'" style="overflow:hidden" :style="closing ? 'margin:0px;max-width:0px;max-height:0px;padding:0px;min-width:0px;border:0px solid transparent' : 'padding:10px;min-width:100px;max-width:500px;max-height:500px;margin:5px;margin-top:10px'" :class="shouldFlash ? 'anim-border-main-flash':(isActive ? 'solid-border' : 'transparent-border')">
         <div class="flex-center" style="margin-top:5px">
             
             <div>
@@ -70,7 +70,8 @@ export default {
             isActive: false,
             closing: false,
             finished: false,
-            deleted: false
+            deleted: false,
+            shouldFlash: false
         }
     },
     methods: {
@@ -90,16 +91,51 @@ export default {
 
             if(this.data.endTime > new Date() && this.data.startTime < new Date()){
                 this.isActive = true;
+                this.shouldFlash = false;
             }
             else{
-                if(this.data.endTime < new Date() && this.size != 'small'){
-                    this.closing = true;
+
+
+                if(new Date() < this.data.startTime){
+                    var minutesToEvent = (this.data.startTime.getTime() - new Date().getTime()) / 60000;
+                    if(minutesToEvent < parseInt(this.$store.getters.getSettingValue("sched_flash_up_next") == undefined ? -1 : this.$store.getters.getSettingValue("sched_flash_up_next"))){
+                        this.shouldFlash = true;
+                    }else{
+                        this.shouldFlash = false;
+                    }
                 }
+                
+
+
+                
+
+                var shouldClose = true;
+                if(this.size == 'small' && (this.$store.getters.getSettingValue("sched_week_display_expired_items") == "yes"||this.$store.getters.getSettingValue("sched_week_display_expired_items") == "do_not_delete")){
+                    shouldClose = false;
+                }
+                if(this.size == 'regular' && (this.$store.getters.getSettingValue("sched_today_display_expired_items") == "yes"||this.$store.getters.getSettingValue("sched_today_display_expired_items") == "do_not_delete")){
+                    shouldClose = false;
+                }
+                
+
+               
+
+                if(this.data.endTime < new Date() && shouldClose){
+                    
+                    this.closing = true;
+                }else{
+                    this.closing = false;
+                }
+
                 if(this.data.endTime < new Date()){
                     this.finished = true;
+                    this.shouldFlash = false;
                 }
+
+
                 this.isActive = false;
             }
+
 
             if(this.data.deleted){
                 this.closing = true;
@@ -109,7 +145,8 @@ export default {
 
 
 
-            if(this.closing == true && this.deleted == false){
+            if(this.closing == true && !this.data.created && this.$store.getters.getSettingValue("sched_week_display_expired_items") != "do_not_delete"){
+                console.log("INIT FINAL DELETE", this.data, this.closing)
                 setTimeout(() => {
                     this.$emit("remove", this.data);
                     this.deleted = true;
@@ -130,7 +167,10 @@ export default {
             this.closing = true;
             setTimeout(() => {
                     this.emitScheduleItemChange("noLongerNew");
-                    this.data.created = false;
+                    setTimeout(() => {
+                        this.data.created = false;
+                    }, 500);
+                    
                     this.closing = false;
                 }, 500);
         }
