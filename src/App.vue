@@ -35,35 +35,46 @@ import Greet from "./components/Greet.vue";
     
   </div>
 
-  <div class="bottom-menu">
+  <div class="bottom-menu" :style="bottomPanelMode == 'disable' ? 'bottom:-400px;opacity:0' : 'opacity:1'">
     <div class="flex-center" style="justify-content: left;">
-      <div class="raised-container flex-center">
-        <div class="color-box cursor-pointer" style="background-color: red;" @click="setColor('red')">
-          <Lottie :src="'LookDown2.json'" :mode="'click'" style="width:30px;opacity: 0.6;" :background="'transparent'"/>
+      <div class="raised-container">
+        <div class="flex-center" v-if="bottomPanelMode == 'leds'">
+          <div class="color-box cursor-pointer" style="background-color: red;" @click="setColor('red')">
+            <Lottie :src="'LookDown2.json'" :mode="'click'" style="width:30px;opacity: 0.6;" :background="'transparent'"/>
+          </div>
+          <div class="color-box cursor-pointer" style="background-color: orange;" @click="setColor('amber')">
+            <Lottie :src="'LookDown2.json'" :mode="'click'" style="width:30px;opacity: 0.6;" :background="'transparent'"/>
+          </div>
+          <div class="color-box cursor-pointer" style="background-color: yellow;" @click="setColor('yellow')">
+            <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4;" :background="'transparent'"/>
+          </div>
+          <div class="color-box cursor-pointer" style="background-color: #55ff77;" @click="setColor('green')">
+            <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4  ;" :background="'transparent'"/>
+          </div>
+          <div class="color-box cursor-pointer" style="background-color: #5555ff;" @click="setColor('blue')">
+            <Lottie :src="'LookDown2.json'" :mode="'click'" style="width:30px;opacity: 0.6;" :background="'transparent'"/>
+          </div>
+          <div class="color-box cursor-pointer" style="background-color: white;" @click="setColor('white')">
+            <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4;" :background="'transparent'"/>
+          </div>
+          <div class="color-box cursor-pointer" style="background: linear-gradient(45deg, rgba(255,130,130,1) 7%, rgba(255,252,140,1) 31%, rgba(121,255,128,1) 50%, rgba(101,209,255,1) 69%, rgba(255,255,255,1) 93%);" @click="setColor('random')">
+            <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4;" :background="'transparent'"/>
+          </div>
+          <div style="background-color: white;opacity:0.6;height:20px;width:4px;border-radius: 4px;margin:0px 5px">
+            
+          </div>
+          <input @change="setLight($event.srcElement.value)" class="light-container transparent-border text f-small" style="width:40px;margin-left:5px;margin-right:2px" placeholder="LGT"/>
+          <span class="text f-small">%</span>
         </div>
-        <div class="color-box cursor-pointer" style="background-color: orange;" @click="setColor('amber')">
-          <Lottie :src="'LookDown2.json'" :mode="'click'" style="width:30px;opacity: 0.6;" :background="'transparent'"/>
-        </div>
-        <div class="color-box cursor-pointer" style="background-color: yellow;" @click="setColor('yellow')">
-          <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4;" :background="'transparent'"/>
-        </div>
-        <div class="color-box cursor-pointer" style="background-color: #55ff77;" @click="setColor('green')">
-          <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4  ;" :background="'transparent'"/>
-        </div>
-        <div class="color-box cursor-pointer" style="background-color: #5555ff;" @click="setColor('blue')">
-          <Lottie :src="'LookDown2.json'" :mode="'click'" style="width:30px;opacity: 0.6;" :background="'transparent'"/>
-        </div>
-        <div class="color-box cursor-pointer" style="background-color: white;" @click="setColor('white')">
-          <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4;" :background="'transparent'"/>
-        </div>
-        <div class="color-box cursor-pointer" style="background: linear-gradient(45deg, rgba(255,130,130,1) 7%, rgba(255,252,140,1) 31%, rgba(121,255,128,1) 50%, rgba(101,209,255,1) 69%, rgba(255,255,255,1) 93%);" @click="setColor('random')">
-          <Lottie :src="'LookDownDark2.json'" :mode="'click'" style="width:30px;opacity: 0.4;" :background="'transparent'"/>
-        </div>
-        <div style="background-color: white;opacity:0.6;height:20px;width:4px;border-radius: 4px;margin:0px 5px">
+        <div class="flex-center" v-if="bottomPanelMode == 'battery'">
+          <span style="margin:0px 10px" class="text f-medium f-bold">50%</span>
           
+          <input class="light-container transparent-border text f-small" style="width:60px;margin-right:2px" placeholder="Max %"/>
+          <span class="text f-small">%</span>
         </div>
-        <input @change="setLight($event.srcElement.value)" class="light-container transparent-border text f-small" style="width:40px;margin-left:5px;margin-right:2px" placeholder="LGT"/>
-        <span class="text f-small">%</span>
+        <div class="flex-center" v-if="bottomPanelMode == 'clock'">
+          <span style="margin:0px 10px" class="text f-medium f-bold">10:05 AM</span>
+        </div>
 
 
       </div>
@@ -87,7 +98,7 @@ import Greet from "./components/Greet.vue";
 
     </div>
     <div class="overlay">
-      <SettingsOverlay v-if="showOverlay"/>
+      <SettingsOverlay @close="showOverlay = false" v-if="showOverlay"/>
     </div>
   </div>
   
@@ -135,7 +146,8 @@ export default {
       },
       encouragements: [],
       sizeMode: "schedule-top",
-      showOverlay: false
+      showOverlay: false,
+      bottomPanelMode: "leds"
     }
   },
   methods: {
@@ -260,6 +272,10 @@ export default {
     setTimeout(() => {
       this.loading = false;
     }, 2000)
+
+    setInterval(() => {
+      this.bottomPanelMode = this.$store.getters.getSettingValue("panel_mode") == undefined ? "leds" : this.$store.getters.getSettingValue("panel_mode");
+    }, 2000);
 
     this.$store.dispatch("loadSettings");
 

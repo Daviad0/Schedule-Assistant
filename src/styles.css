@@ -160,6 +160,9 @@ span{
 .bg-transparent{
   background-color: #ffffff15;
 }
+.bg-red{
+  background-color: #ff0040;
+}
 
 .shadow{
   box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
@@ -315,13 +318,13 @@ span{
 
 @keyframes bg-main-flash{
   0% {
-    background-color: #6200ff;
+    filter: brightness(1);
   }
   10% {
-    background-color: #b98eff;
+    filter: brightness(2);
   }
   20% {
-    background-color: #6200ff;
+    filter: brightness(1);
   }
 }
 .anim-bg-main-flash {

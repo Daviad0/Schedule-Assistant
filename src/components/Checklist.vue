@@ -9,12 +9,23 @@
                 <div class="flex-apart" style="overflow-y: hidden" :style="showExtraDetails ? 'max-height:500px' : 'max-height:0px'">
                     <div style="width:30%;margin:0px 5px">
                         <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Use Tag</span>
-                        <AutoInput ref="tag" :autofill="usedCategories" style="width:100%" :placeholder="'Work'"/>
+                        <input ref="tag" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Work"/>
+                        
                     </div>
                     <div style="width:60%;margin:0px 5px">
                         <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Due At</span>
                         <input ref="due" class="raised-container transparent-border text f-small" style="padding:8px 0px;width:100%" type="datetime-local"/>
                     </div>
+                    
+                    
+                </div>
+                <div class="flex-apart" style="overflow-y: hidden;margin-top:10px;resize: none;" :style="showExtraDetails ? 'max-height:500px' : 'max-height:0px'">
+                    <div style="width:90%;margin:0px 5px">
+                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Additional Information</span>
+                        <textarea ref="extra" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%;height:80px" placeholder="Optional Extra Information"></textarea>
+                        
+                    </div>
+                    
                     
                     
                 </div>
@@ -43,18 +54,13 @@
                     
                 </div>
                 <div v-if="viewMode == 'schedule-side'" style="overflow-y:auto;" :style="showExtraDetails ? 'max-height:80%' : 'max-height:90%'">
-                    <div v-for="item in highPriorityItems()" >
+                    <div v-for="item in properlyPrioritizedItems()" >
                     
                         <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
                         
                         
                     </div>
-                    <div v-for="item in lowPriorityItems()" >
                     
-                        <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
-                        
-                        
-                    </div>
                 </div>
                 
                 
@@ -93,6 +99,7 @@ export default {
             var name = this.$refs.name.value;
             var due = this.$refs.due.value;
             var tag = this.$refs.tag.value;
+            var extra = this.$refs.extra.value;
 
             if(name == ""){
                 return;
@@ -103,7 +110,8 @@ export default {
                 checkedAt: undefined,
                 createdAt: new Date(),
                 dueAt: due == "" ? undefined : new Date(due),
-                category: tag
+                category: tag,
+                extra: extra
             }
 
             this.items.push(item);
@@ -111,6 +119,7 @@ export default {
             this.$refs.name.value = "";
             this.$refs.due.value = "";
             this.$refs.tag.value = "";
+            this.$refs.extra.value = "";
             this.showExtraDetails = false;
 
             this.saveChecklist();
@@ -170,6 +179,10 @@ export default {
             
         },
         sendEncouragement(text){
+            var showMessage = this.$store.getters.getSettingValue("check_show_encouraging_message") == undefined ? true : this.$store.getters.getSettingValue("check_show_encouraging_message") == "yes";
+            if(!showMessage){
+                return;
+            }
             this.$emit('encourage', text);
         },
         highPriorityItems(){
@@ -184,6 +197,20 @@ export default {
             items.sort((a, b) => a.createdAt - b.createdAt);
 
             return this.items.filter(item => item.dueAt == undefined);
+        },
+        properlyPrioritizedItems(){
+            var howToSort = this.$store.getters.getSettingValue("check_category_sort") == undefined ? "due_soon" : this.$store.getters.getSettingValue("check_category_sort");
+
+            if(howToSort == "due_soon"){
+                return this.highPriorityItems().concat(this.lowPriorityItems());
+            }else if(howToSort == "alphabetical"){
+                return this.items.sort((a, b) => a.name.localeCompare(b.name));
+            }else if(howToSort == "recently_used"){
+                return this.items.sort((a, b) => b.createdAt - a.createdAt);
+            }
+
+            return this.highPriorityItems().concat(this.lowPriorityItems());
+
         },
         handleEventsFromAbove(event){
             if(event.event == "viewMode"){

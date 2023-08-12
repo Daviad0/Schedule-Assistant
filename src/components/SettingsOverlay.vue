@@ -35,7 +35,7 @@
             
         </div>
         <div class="flex-center" style="margin-right:25px;margin-bottom:10px;width:100%;justify-content: end;">
-            <Lottie :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'" style="width:60px"/>
+            <Lottie @click="closeSettings()" :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'" style="width:60px"/>
         </div>
     </div>
 
@@ -132,7 +132,7 @@ export default {
                     
                 },
                 {
-                    id: 'sched_flash_up_next',
+                    id: 'sched_flash_up_next', //done
                     display: 'Minutes Before to Flash Up Next', 
                     type: 'number',
                     placeholder: '0 = No Flash'
@@ -144,19 +144,30 @@ export default {
                     placeholder: '0 = Instant'
                 },
                 {
-                    id: 'check_flash_progress_at_percent',
+                    id: 'check_flash_progress_at_percent', //done
                     display: 'Progress % to Flash Item', 
                     type: 'number',
                     placeholder: '0 = No Flash'
                 },
                 {
-                    id: 'check_show_finished_progress',
+                    id: 'check_show_finished_progress', // done
                     display: 'Show Progress after Finished', 
-                    type: 'number',
-                    placeholder: '0 = No Flash'
+                    type: 'dropdown',
+                    options: [
+                        {
+                            id: 'yes',
+                            display: 'Yes'
+                        },
+                        {
+                            id: 'no',
+                            display: 'No'
+                        }
+                        
+
+                    ]
                 },
                 {
-                    id: 'check_show_encouraging_message',
+                    id: 'check_show_encouraging_message', // done
                     display: 'Show Encouraging Message when Finished', 
                     type: 'dropdown',
                     options: [
@@ -300,6 +311,9 @@ export default {
             var val = this.$store.getters.getSettingValue(id);
             console.log("GOT SETTING", id, val);
             return val;
+        },
+        closeSettings(){
+            this.$emit('close');
         }
     }
 }
