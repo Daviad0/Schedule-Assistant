@@ -5,9 +5,12 @@
                 <div class="flex-center" :style="data.checkedAt != undefined ? 'opacity:0.7' : 'opacity:1'" style="justify-content: left;">
                     <span class="text f-medium f-bold" :style="data.checkedAt != undefined ? 'text-decoration: line-through;' : ''" style="text-align: left;margin-right:10px;white-space: none;">{{ data.name }}</span>
                     <Tag :name="data.category" v-if="data.category != ''"/>
-                    
+                    <Lottie @click="this.extraOpen = !this.extraOpen" :src="'Dropdown.json'" v-if="this.data.extra != undefined" :mode="'loop'" style="width:20px;margin-left:5px" :style="extraOpen ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
                     
                 </div>  
+                <div style="overflow-y:none" :style="extraOpen ? 'max-height:300px;opacity:1;margin:10px' : 'max-height:0px;opacity:0;margin:0px'">
+                    <span class="text f-small" v-if="this.data.extra != undefined" style="text-align: left" v-html="replaceTextLinks(this.data.extra)"></span>
+                </div>
                 <div v-if="data.dueAt != undefined" style="justify-content: left;" class="flex-center" >
                     <div class="solid-highlight-container" style="overflow-x: hidden;margin-left:0px" :style="this.data.checkedAt != undefined ? 'max-width:100%;opacity:1;margin-right:10px;padding:4px 10px' : 'max-width:0px;opacity:0;margin-right:0px;padding:0px'" >
                         <span class="text f-small" style="white-space: nowrap;">Completed On {{ this.data.checkedAt == undefined ? getShortDateTimeCompleted(cacheCheckTime) : getShortDateTimeCompleted(this.data.checkedAt) }}</span>
@@ -47,7 +50,8 @@ export default {
             closing: false,
             flashAtProgress: 100,
             showProgressAfterwards: false,
-            currentBackground: 'transparent'
+            currentBackground: 'transparent',
+            extraOpen: false
         }
     },
     mounted(){
@@ -105,11 +109,16 @@ export default {
     },
     methods: {
         getProgressOfTime(created, endAt, useTime){
-            var now = useTime;
-            var total = endAt.getTime() - created.getTime();
-            var elapsed = now.getTime() - created.getTime();
+            try{
+                var now = useTime;
+                var total = endAt.getTime() - created.getTime();
+                var elapsed = now.getTime() - created.getTime();
 
-            return Math.min((elapsed / total)*100,100);
+                return Math.min((elapsed / total)*100,100);
+            }catch(e){
+                return 100;
+            }
+            
         },
         interpolateColor(c0, c1, f){
             c0 = c0.match(/.{1,2}/g).map((oct)=>parseInt(oct, 16) * (1-f))
@@ -118,26 +127,31 @@ export default {
             return ci.reduce((a,v) => ((a << 8) + v), 0).toString(16).padStart(6, "0")
         },
         getShorthandTimeLeft(endAt, checkAt){
-            var now = checkAt;
-            if(now > endAt){
+            try{
+                var now = checkAt;
+                if(now > endAt){
+                    return "Due";
+                }
+
+                var total = endAt.getTime() - now.getTime();
+                // if more than 48 hours, return number of days
+                if(total > 1000*60*60*48){
+                    return Math.floor(total / (1000*60*60*24)) + "d";
+                }
+                // if more than 1 hour, return number of hours
+                if(total > 1000*60*60){
+                    return Math.floor(total / (1000*60*60)) + "h";
+                }
+                // if more than 1 minute, return number of minutes
+                if(total > 1000*60){
+                    return Math.floor(total / (1000*60)) + "m";
+                }
+                // return number of seconds
+                return Math.floor(total / 1000) + "s";
+            }catch(e){
                 return "Due";
             }
-
-            var total = endAt.getTime() - now.getTime();
-            // if more than 48 hours, return number of days
-            if(total > 1000*60*60*48){
-                return Math.floor(total / (1000*60*60*24)) + "d";
-            }
-            // if more than 1 hour, return number of hours
-            if(total > 1000*60*60){
-                return Math.floor(total / (1000*60*60)) + "h";
-            }
-            // if more than 1 minute, return number of minutes
-            if(total > 1000*60){
-                return Math.floor(total / (1000*60)) + "m";
-            }
-            // return number of seconds
-            return Math.floor(total / 1000) + "s";
+            
         },
         getShortDateTimeCompleted(completed){
             if(completed == undefined){
@@ -146,6 +160,16 @@ export default {
             // return date in format MM/DD HH:MM AM/PM
             return (completed.getMonth()+1) + "/" + completed.getDate() + " @ " + (completed.getHours() > 12 ? completed.getHours() - 12 : completed.getHours()) + ":" + (completed.getMinutes() < 10 ? "0" : "") + completed.getMinutes() + " " + (completed.getHours() > 12 ? "PM" : "AM");
             
+        },
+        replaceTextLinks(){
+            // go through the text and replace any links with <a> tags
+            var text = this.data.extra;
+            // use regex
+            var urlRegex = /(https?:\/\/[^\s]+)/g;
+            text = text.replace(urlRegex, function(url) {
+                return '<a class="highlight-container text" style="margin:5px" target="_blank" href="' + url + '">' + url + '</a>';
+            })
+            return text;
         },
         setChecklistItemStatus(toggled){
             if(toggled){

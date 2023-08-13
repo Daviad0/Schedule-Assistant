@@ -9,7 +9,7 @@ import Greet from "./components/Greet.vue";
   <div class="top-bar flex-apart light-container" style="padding:5px" data-tauri-drag-region>
     <div class="flex-center">
       <span class="text f-large f-bold" style="margin-left:20px">Welcome</span>
-      <Lottie @click="showOverlay = !showOverlay" :src="'Minimize2.json'" :mode="'click'" style="width:60px" :background="'transparent'"/>
+      <Lottie @click="showOverlay = !showOverlay" :src="'Settings.json'" :mode="'click'" style="width:30px;margin:10px" :background="'transparent'"/>
 
     </div>
     <div class="flex-center">

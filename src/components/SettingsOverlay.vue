@@ -188,7 +188,7 @@ export default {
                     ]
                 },
                 {
-                    id: 'check_progress_color',
+                    id: 'check_progress_color', // done
                     display: 'Progress Color Mode', 
                     type: 'dropdown',
                     options: [
@@ -209,7 +209,7 @@ export default {
                     ]
                 },
                 {
-                    id: 'check_category_sort',
+                    id: 'check_category_sort', // done
                     display: 'Category Sort Mode', 
                     type: 'dropdown',
                     options: [

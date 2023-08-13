@@ -370,3 +370,9 @@ span{
   background: #ffffff30;
 }
 
+a{
+  text-decoration: none;
+}
+a:hover{
+  text-decoration: underline;
+}
