@@ -27,9 +27,13 @@ import Greet from "./components/Greet.vue";
     <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
 
       <Schedule v-if="!loading" @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
-      
+      <div :style="sizeMode == 'schedule-top' ? 'width:50%;height:40vh;justify-content:start' : 'width:30%;height:70vh;flex-direction:column;justify-content:start'" class="flex-apart">
+        <Notes v-if="!loading" @setcb="setCB('notes', $event)" @encourage="addEncouragement($event)"  />
+        <Canvas v-if="!loading" />
+      </div>
       <!-- <Checklist /> -->
-      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:50%;height:40vh' : 'width:30%;height:70vh'" />
+      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:40%;height:40vh' : 'width:30%;height:70vh'" />
+      
       
     </div>
     
@@ -124,7 +128,7 @@ import { appWindow } from "@tauri-apps/api/window";
 import { Command } from '@tauri-apps/api/shell';
 
 import { writeTextFile, BaseDirectory, readTextFile } from '@tauri-apps/api/fs';
-
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
 
 
 export default {
@@ -269,15 +273,27 @@ export default {
     }
   },
   mounted(){
-    setTimeout(() => {
-      this.loading = false;
-    }, 2000)
 
     setInterval(() => {
       this.bottomPanelMode = this.$store.getters.getSettingValue("panel_mode") == undefined ? "leds" : this.$store.getters.getSettingValue("panel_mode");
     }, 2000);
 
-    this.$store.dispatch("loadSettings");
+    setTimeout(async () => {
+      await this.$store.dispatch("loadSettings");
+      await this.$store.dispatch("loadCache", "canvas");
+      this.loading = false;
+      await this.$store.dispatch("canvas_updateCache");
+    }, 100);
+    setTimeout(async () => {
+      let permissionGranted = await isPermissionGranted();
+      if (!permissionGranted) {
+        const permission = await requestPermission();
+        this.$store.state.notifPermission = permission === 'granted';
+      }
+    }, 100);
+    
+    
+    
 
 
 

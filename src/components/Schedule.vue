@@ -56,6 +56,7 @@
 </template>
 <script>
 import { writeTextFile, BaseDirectory, readTextFile } from '@tauri-apps/api/fs';
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
 export default {
     name: "Schedule",
     data() {
@@ -64,7 +65,8 @@ export default {
             viewType: 'week',
             days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
             endOfToday: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 23, 59, 59, 999),
-            endOfWeek: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (6-new Date().getDay()), 23, 59, 59, 999)
+            endOfWeek: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (6-new Date().getDay()), 23, 59, 59, 999),
+            notifsSentForIds: []
         }
     },
     methods: {
@@ -182,6 +184,14 @@ export default {
             events.sort((a, b) => a.startTime - b.startTime); 
 
             return events;
+        },
+        checkForAnyNotifs(){
+            this.schedule.forEach(e => {
+                if(e.startTime > new Date() && (e.startTime.getTime() - (new Date().getTime()) < 1000*60*10) && !this.notifsSentForIds.includes(e.id)){
+                    this.notifsSentForIds.push(e.id);
+                    sendNotification({title: "Upcoming Event", body: e.title + " is starting soon!"});
+                }
+            });
         }
     },
     mounted() {
@@ -192,6 +202,7 @@ export default {
         setInterval(() => {
             this.endOfToday = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 23, 59, 59, 999);
             this.endOfWeek = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + (6-new Date().getDay()), 23, 59, 59, 999);
+            this.checkForAnyNotifs();
         }, 20000);
 
         this.$emit("setcb", this.handleEventsFromAbove);

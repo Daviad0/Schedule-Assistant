@@ -6,52 +6,73 @@
         <div style="height:100%;width:100%;overflow-y:auto">
             <div v-for="category in categoriesToShow()" style="margin:10px 20px;margin-bottom: 40px;">
                 <span class="text f-xlarge f-bold" style="text-align: left;margin-left:5px">{{ category.display }}</span>
-                <hr class="text" style="opacity: 0.2;margin-top:15px"/>
+                <hr class="text" style="opacity: 0.2;margin-top:15px" />
                 <div style="padding-top: 10px;">
                     <div v-for="setting in getSettingsInCategory(category)">
                         <div class="flex-apart" style="margin:15px 20px">
-                            <span class="text f-large">{{setting.display}}</span>
+                            <span class="text f-large">{{ setting.display }}</span>
                             <div class="dotted-line" style="flex:1;margin:0px 20px">
 
                             </div>
                             <div>
                                 <div v-if="setting.type == 'dropdown'">
-                                    <Dropdown @change="setSettingValue(setting.id, $event)" :value="getSettingValue(setting.id)" :options="setting.options.map(o => o.display)" :optionids="setting.options.map(o => o.id)" :initwidth="'400px'" :id="setting.id"/>
+                                    <Dropdown @change="setSettingValue(setting.id, $event)"
+                                        :value="getSettingValue(setting.id)" :options="setting.options.map(o => o.display)"
+                                        :optionids="setting.options.map(o => o.id)" :initwidth="'400px'" :id="setting.id" />
+                                </div>
+                                <div v-if="setting.type == 'multi'">
+                                    <MultiDropdown @change="setSettingValue(setting.id, $event)"
+                                        :value="getSettingValue(setting.id)" :options="setting.options.map(o => o.display)"
+                                        :optionids="setting.options.map(o => o.id)" :initwidth="'400px'" :id="setting.id" />
                                 </div>
                                 <div v-if="setting.type == 'number'">
-                                    <input :value="getSettingValue(setting.id) != undefined ? getSettingValue(setting.id) : ''" @change="setSettingValue(setting.id, $event.srcElement.value)" class="light-container transparent-border text f-medium" style="text-align: left;width:200px" type="number" :placeholder="setting.placeholder">
+                                    <input
+                                        :value="getSettingValue(setting.id) != undefined ? getSettingValue(setting.id) : ''"
+                                        @change="setSettingValue(setting.id, $event.srcElement.value)"
+                                        class="light-container transparent-border text f-medium"
+                                        style="text-align: left;width:200px" type="number"
+                                        :placeholder="setting.placeholder"
+                                        :disabled="setting.restricted">
                                 </div>
-                                
+                                <div v-if="setting.type == 'text'">
+                                    <input
+                                        :value="getSettingValue(setting.id) != undefined ? getSettingValue(setting.id) : ''"
+                                        @change="setSettingValue(setting.id, $event.srcElement.value)"
+                                        class="light-container transparent-border text f-medium"
+                                        style="text-align: left;width:300px" type="text" :placeholder="setting.placeholder"
+                                        :disabled="setting.restricted">
+                                </div>
+
                             </div>
                         </div>
 
                     </div>
                 </div>
-                
+
             </div>
             <div style="height:200px">
 
             </div>
-            
+
         </div>
         <div class="flex-center" style="margin-right:25px;margin-bottom:10px;width:100%;justify-content: end;">
-            <Lottie @click="closeSettings()" :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'" style="width:60px"/>
+            <Lottie @click="closeSettings()" :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'"
+                style="width:60px" />
         </div>
     </div>
-
 </template>
 <script>
 export default {
     name: "SettingsOverlay",
     props: {
-       
+
     },
     data: () => {
         return {
             settings: [
                 {
                     id: 'sched_week_sun_sat', // done
-                    display: 'Display Saturday & Sunday in Week Mode', 
+                    display: 'Display Saturday & Sunday in Week Mode',
                     type: 'dropdown',
                     options: [
                         {
@@ -71,7 +92,7 @@ export default {
                 },
                 {
                     id: 'sched_week_display_expired_items', // done except delete
-                    display: 'Display Already Completed Items (in Week Mode)', 
+                    display: 'Display Already Completed Items (in Week Mode)',
                     type: 'dropdown',
                     options: [
                         {
@@ -91,7 +112,7 @@ export default {
                 },
                 {
                     id: 'sched_today_display_expired_items', // done except delete
-                    display: 'Display Already Completed Items (in Today Mode)', 
+                    display: 'Display Already Completed Items (in Today Mode)',
                     type: 'dropdown',
                     options: [
                         {
@@ -111,7 +132,7 @@ export default {
                 },
                 {
                     id: 'sched_snooze_item_mode', // done
-                    display: 'Item Snoozing Function', 
+                    display: 'Item Snoozing Function',
                     type: 'dropdown',
                     options: [
                         {
@@ -126,32 +147,32 @@ export default {
                             id: 'disable',
                             display: 'Disable'
                         }
-                        
+
 
                     ]
-                    
+
                 },
                 {
                     id: 'sched_flash_up_next', //done
-                    display: 'Minutes Before to Flash Up Next', 
+                    display: 'Minutes Before to Flash Up Next',
                     type: 'number',
                     placeholder: '0 = No Flash'
                 },
                 {
                     id: 'check_hide_completed_items', // done
-                    display: 'Minutes to Hide Completed Items', 
+                    display: 'Minutes to Hide Completed Items',
                     type: 'number',
                     placeholder: '0 = Instant'
                 },
                 {
                     id: 'check_flash_progress_at_percent', //done
-                    display: 'Progress % to Flash Item', 
+                    display: 'Progress % to Flash Item',
                     type: 'number',
                     placeholder: '0 = No Flash'
                 },
                 {
                     id: 'check_show_finished_progress', // done
-                    display: 'Show Progress after Finished', 
+                    display: 'Show Progress after Finished',
                     type: 'dropdown',
                     options: [
                         {
@@ -162,13 +183,13 @@ export default {
                             id: 'no',
                             display: 'No'
                         }
-                        
+
 
                     ]
                 },
                 {
                     id: 'check_show_encouraging_message', // done
-                    display: 'Show Encouraging Message when Finished', 
+                    display: 'Show Encouraging Message when Finished',
                     type: 'dropdown',
                     options: [
                         {
@@ -183,13 +204,13 @@ export default {
                             id: 'always',
                             display: 'Show Always'
                         }
-                        
+
 
                     ]
                 },
                 {
                     id: 'check_progress_color', // done
-                    display: 'Progress Color Mode', 
+                    display: 'Progress Color Mode',
                     type: 'dropdown',
                     options: [
                         {
@@ -204,13 +225,13 @@ export default {
                             id: 'purple_to_red',
                             display: 'Gradient from Purple to Red'
                         }
-                        
+
 
                     ]
                 },
                 {
                     id: 'check_category_sort', // done
-                    display: 'Category Sort Mode', 
+                    display: 'Category Sort Mode',
                     type: 'dropdown',
                     options: [
                         {
@@ -225,13 +246,13 @@ export default {
                             id: 'due_soon',
                             display: 'Least Time Until Due'
                         }
-                        
+
 
                     ]
                 },
                 {
                     id: 'panel_mode',
-                    display: 'Mode of Bottom Panel', 
+                    display: 'Mode of Bottom Panel',
                     type: 'dropdown',
                     options: [
                         {
@@ -250,13 +271,13 @@ export default {
                             id: 'clock',
                             display: 'Clock Mode'
                         }
-                        
+
 
                     ]
                 },
                 {
                     id: 'panel_auto_hide',
-                    display: 'Automatically Hide Bottom Panel', 
+                    display: 'Automatically Hide Bottom Panel',
                     type: 'dropdown',
                     options: [
                         {
@@ -267,9 +288,65 @@ export default {
                             id: 'auto_hide',
                             display: 'Auto Hide'
                         }
-                        
+
 
                     ]
+                },
+                {
+                    id: 'canvas_url',
+                    display: 'Canvas Base URL',
+                    type: 'text',
+                    placeholder: 'mtu.instructure.com',
+                    actionOnUpdate: (context) => {
+                        context.$store.dispatch('canvas_getUserID');
+                    }
+                },
+                {
+                    id: 'canvas_token',
+                    display: 'Canvas User Access Token',
+                    type: 'text',
+                    placeholder: 'ABCDEFG',
+                    actionOnUpdate: (context) => {
+                        console.log("UPDATE")
+                        context.$store.dispatch('canvas_getUserID');
+                    }
+                },
+                {
+                    id: 'canvas_uid',
+                    display: 'Canvas User Identifier',
+                    type: 'number',
+                    placeholder: '123456',
+                    actionOnUpdate: () => {
+                        
+                    },
+                    restricted: true
+                },
+                {
+                    id: 'canvas_show_stream_items',
+                    display: 'Show Item Types on "Stream"',
+                    type: 'multi',
+                    options: [
+                        {
+                            id: 'announcement',
+                            display: 'Announcements'
+                        },
+                        {
+                            id: 'message',
+                            display: 'Messages'
+                        },
+                        {
+                            id: 'discussiontopic',
+                            display: 'Discussion Topic'
+                        }
+
+
+                    ]
+                },
+                {
+                    id: 'canvas_max_days_advance',
+                    display: 'Show Items in Days in Advance',
+                    type: 'number',
+                    placeholder: '7 Days'
                 },
 
 
@@ -286,33 +363,41 @@ export default {
                 {
                     prefix: 'panel',
                     display: 'Bottom Panel'
+                },
+                {
+                    prefix: 'canvas',
+                    display: 'Canvas Integration'
                 }
             ]
         }
     },
 
     methods: {
-        categoriesToShow(){
-            if(this.showcategory == undefined){
+        categoriesToShow() {
+            if (this.showcategory == undefined) {
                 return this.categories;
-            }else{
+            } else {
                 return this.categories.filter(category => category.id == this.showcategory);
             }
         },
-        getSettingsInCategory(category){
+        getSettingsInCategory(category) {
             return this.settings.filter(setting => setting.id.startsWith(category.prefix));
         },
-        setSettingValue(id, value){
-            this.$store.commit('setSettingValue', {id: id, value: value});
+        setSettingValue(id, value) {
+            this.$store.commit('setSettingValue', { id: id, value: value });
+            var applicableSetting = this.settings.find(setting => setting.id == id);
+            if (applicableSetting.actionOnUpdate != undefined) {
+                applicableSetting.actionOnUpdate(this);
+            }
             console.log(this.getSettingValue(id));
         },
-        getSettingValue(id){
-            
+        getSettingValue(id) {
+
             var val = this.$store.getters.getSettingValue(id);
             console.log("GOT SETTING", id, val);
             return val;
         },
-        closeSettings(){
+        closeSettings() {
             this.$emit('close');
         }
     }

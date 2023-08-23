@@ -1,39 +1,51 @@
 <template>
     <div style="margin:20px;height:100%" ref="base">
-        <div style="height:100%;flex-direction: column;justify-content: start;" class="flex-center">
-            <div style="width:100%">
-                <div class="flex-center" style="margin:0px 5px;margin-bottom: 10px;">
-                    <input v-on:keydown.enter="createItem()" @keyup="updateName($event.srcElement.value)" ref="name" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Add To-Do Item"/>
-                    <Lottie @click="createItem()" :src="'AddDown2.json'" :mode="'click'" style="width:30px;margin-left:15px" :background="'transparent'"/>
-                </div> 
-                <div class="flex-apart" style="overflow-y: hidden" :style="showExtraDetails ? 'max-height:500px' : 'max-height:0px'">
-                    <div style="width:30%;margin:0px 5px">
-                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Use Tag</span>
-                        <input ref="tag" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Work"/>
-                        
-                    </div>
-                    <div style="width:60%;margin:0px 5px">
-                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Due At</span>
-                        <input ref="due" class="raised-container transparent-border text f-small" style="padding:8px 0px;width:100%" type="datetime-local"/>
+        <div style="height:100%;">
+            <div class="flex-apart">
+                <div style="width:100%">
+                    <div class="flex-center" style="margin:0px 5px;margin-bottom: 10px;">
+                        <input v-on:keydown.enter="createItem()" @keyup="updateName($event.srcElement.value)" ref="name" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Add To-Do Item"/>
+                        <Lottie @click="createItem()" :src="'AddDown2.json'" :mode="'click'" style="width:30px;margin-left:15px" :background="'transparent'"/>
+                    </div> 
+                    <div style="overflow-y: hidden;" :style="showExtraDetails ? 'max-height:500px' : 'max-height:0px'">
+                        <div class="flex-apart">
+                            <div style="width:30%;margin:0px 5px">
+                                <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Use Tag</span>
+                                <input ref="tag" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Work"/>
+                                
+                            </div>
+                            <div style="width:60%;margin:0px 5px">
+                                <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Due At</span>
+                                <input ref="due" class="raised-container transparent-border text f-small" style="padding:8px 0px;width:100%" type="datetime-local"/>
+                            </div>
+                            
+                            
+                        </div>
+                        <div class="flex-apart" style="margin-top:10px;resize: none;">
+                            <div style="width:90%;margin:0px 5px">
+                                <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Additional Information</span>
+                                <textarea ref="extra" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%;height:80px" placeholder="Optional Extra Information"></textarea>
+                                
+                            </div>
+                            
+                            
+                            
+                        </div>
                     </div>
                     
                     
                 </div>
-                <div class="flex-apart" style="overflow-y: hidden;margin-top:10px;resize: none;" :style="showExtraDetails ? 'max-height:500px' : 'max-height:0px'">
-                    <div style="width:90%;margin:0px 5px">
-                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Additional Information</span>
-                        <textarea ref="extra" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%;height:80px" placeholder="Optional Extra Information"></textarea>
+                <div style="width:100%;overflow-x:hidden" :style="showExtraDetails ? 'max-width:0px' : 'max-width:100%'">
+                    <div class="flex-center" style="margin:0px 5px;margin-bottom: 10px;">
+                        <input ref="filter" class="raised-container transparent-border text f-medium" style="text-align: left;" placeholder="Filter By Content"/>
                         
                     </div>
-                    
-                    
-                    
                 </div>
-                
             </div>
+            
              
             
-            <div style="margin-top:20px;width:100%;height:100%">
+            <div style="margin-top:20px;width:100%;height:80%" ref="itemlist">
                 <div class="flex-center" style="align-items: start;height:100%" v-if="viewMode == 'schedule-top'">
                     <div style="width:50%;overflow-y:auto"  :style="showExtraDetails ? 'max-height:60%' : 'max-height:80%'">
                         <div v-for="item in highPriorityItems()">
@@ -90,7 +102,23 @@ export default {
     },
     methods: {
         updateName(text){
+            var oldSED = this.showExtraDetails;
             this.showExtraDetails = text != "";
+
+
+            if(oldSED != this.showExtraDetails){
+                setTimeout(() => {
+                    this.$refs.itemlist.style.display = "none";
+                    setTimeout(() => {
+                        this.$refs.itemlist.style.display = "";
+                    }, 10);
+                    
+                }, 500);
+                
+                
+                
+
+            }
         },
         updateUsedCategories(){
             this.usedCategories = this.items.map(item => item.category).filter((value, index, self) => self.indexOf(value) === index);
@@ -111,7 +139,7 @@ export default {
                 createdAt: new Date(),
                 dueAt: due == "" ? undefined : new Date(due),
                 category: tag,
-                extra: extra
+                extra: extra == "" ? undefined : extra
             }
 
             this.items.push(item);
@@ -179,8 +207,8 @@ export default {
             
         },
         sendEncouragement(text){
-            var showMessage = this.$store.getters.getSettingValue("check_show_encouraging_message") == undefined ? true : this.$store.getters.getSettingValue("check_show_encouraging_message") == "yes";
-            if(!showMessage){
+            var showMessage = this.$store.getters.getSettingValue("check_show_encouraging_message") == undefined ? "always" : this.$store.getters.getSettingValue("check_show_encouraging_message");
+            if(showMessage == "disable"){
                 return;
             }
             this.$emit('encourage', text);
