@@ -2,10 +2,33 @@
     <div style="margin:20px;height:100%;width:100%;" ref="base">
         <div class="flex-center" style="flex-direction: column;justify-content: start;height: 100%;">
             <div class="flex-center">
-                <ButtonGroup @change="openTab = $event" :buttons="['Summary', 'Courses', 'Announcements']"/>
+                <ButtonGroup @change="openTab = $event" :buttons="['Stream', 'Courses', 'Announcements']"/>
             </div>
-            <div class="flex-center">
-                <div style="margin-top:20px;overflow-y: auto;width:100%;padding-bottom:100px;overflow-x:none" :style="openTab == 'Courses' ? 'max-width:100%' : 'max-width:0px'">
+            <div class="flex-center" style="height:100%;margin-top:10px;width:100%">
+                <div style="margin-top:20px;overflow-y: auto;width:100%;padding-bottom:100px;overflow-x:hidden;height:90%" :style="openTab == 'Stream' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:0px'">
+                    <div v-for="streamItem in getStream().filter(s => s.type == 'Message')" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
+                        <div class="flex-apart">
+                            
+                            <div class="flex-center">
+                                <span class="text f-medium f-bold">Update</span>
+                                <div class="solid-highlight-container">
+                                    <span class="text f-small">{{ getCourseById(streamItem.course_id).name }}</span>
+                                </div>
+                                
+                                
+                            </div>
+                
+                            
+                            <span class="text f-small">{{ streamItem.updated_at == null ? new Date(streamItem.created_at).toLocaleString() : new Date(streamItem.updated_at).toLocaleString() }}</span>
+                            
+                        </div>
+                        <div class="flex-center">
+                            <span class="text f-small center block" style="white-space: normal;word-break: break-all;margin:10px" v-html="formatMessage(streamItem.message)"></span>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div style="margin-top:20px;overflow-y: auto;width:100%;padding-bottom:100px;overflow-x:hidden;height:90%;" :style="openTab == 'Courses' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:0px'">
                     <div v-for="enrollment in activelyShowingEnrollments" style="margin:10px;padding:20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             <div class="flex-center">
@@ -14,13 +37,14 @@
                             </div>
                             <div :style="openEnrollments.includes(enrollment) ? 'opacity:0' : 'opacity:1'">
                                 <div class="highlight-container">
-                                    <span class="text f-small f-bold">96%</span>
+                                    <span v-if="enrollment.extraData.computed_current_score != null" class="text f-small f-bold" style="white-space: normal;word-break: break-all;">{{ enrollment.extraData.computed_current_score }}</span>
+                                    <span v-if="enrollment.extraData.computed_current_score == null" class="text f-small f-bold">N/A</span>
                                 </div>
                             </div>
                             
                         </div>
                         <div style="overflow-y:hidden;" :style="openEnrollments.includes(enrollment) ? 'max-height:800px' : 'max-height:0px'">
-                            <div v-for="todoItem in getTodoInCourse(enrollment.id)" style="margin:5px 10px">
+                            <div v-for="todoItem in getTodoInCourse(enrollment)" style="margin:5px 10px">
                                 <div class="flex-apart">
                                     <div class="flex-center">
                                         <div class="solid-highlight-container">
@@ -32,8 +56,10 @@
                                         
                                     </div>
 
-                                    <div class="highlight-container">
-                                        <span class="text f-small f-bold">{{getTimeUntilDue(todoItem.assignment.due_at)}}</span>
+                                    <div class="highlight-container" :class="getTimeUntilDue(todoItem.assignment.due_at) == 'OVERDUE' ? 'anim-bg-main-flash' : ''">
+                                        <span class="text f-small f-bold" v-if="getTimeUntilDue(todoItem.assignment.due_at) != 'LOTTIE' && getTimeUntilDue(todoItem.assignment.due_at) != 'OVERDUE'">{{getTimeUntilDue(todoItem.assignment.due_at)}}</span>
+                                        <Lottie :src="'ClockSpin.json'" :mode="'hover'" style="width:20px" :background="'transparent'" v-if="getTimeUntilDue(todoItem.assignment.due_at) == 'LOTTIE'" title="No Due Date Specified"/>
+                                        <Lottie :src="'ClockDone2.json'" :mode="'loop'" style="width:20px" :background="'transparent'" v-if="getTimeUntilDue(todoItem.assignment.due_at) == 'OVERDUE'" title="Overdue!"/>
                                     </div>
                                 
                                 </div>
@@ -41,13 +67,41 @@
                                 
                             </div>
                             <div class="flex-apart" style="justify-content: end;">
-                                <span class="highlight-container text">Open in Canvas</span>
+                                <a class="highlight-container text" :href="getBaseCanvasLink() + '/courses/' + enrollment.id" target="_blank">Open in Canvas</a>
                             </div>
                             
                             
                         </div>
                     </div>
                 </div>
+                <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:90%" :style="openTab == 'Announcements' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:0px'">
+                    <div class="flex-center">
+                        <span class="text f-medium center block" style="opacity: 0.7;" v-if="getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic').length == 0">No Announcements to see :(</span>
+                    </div>
+                    
+                    <div v-for="streamItem in getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic')" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
+                        <div class="flex-apart">
+                            
+                            <div class="flex-center">
+                                <span class="text f-medium f-bold">{{ s.type == 'DiscussionTopic' ? 'Discussion Post' : 'Announcement' }}</span>
+                                <div class="solid-highlight-container">
+                                    <span class="text f-small">{{ getCourseById(streamItem.course_id).name }}</span>
+                                </div>
+                                
+                                
+                            </div>
+                
+                            
+                            <span class="text f-small">{{ streamItem.updated_at == null ? new Date(streamItem.created_at).toLocaleString() : new Date(streamItem.updated_at).toLocaleString() }}</span>
+                            
+                        </div>
+                        <div class="flex-center">
+                            <span class="text f-small center block" style="white-space: normal;word-break: break-all;margin:10px" v-html="getDiscussionEntry(streamItem.root_discussion_entries, streamItem.type == 'Announcement').message"></span>
+                        </div>
+                        
+                    </div>
+                </div>
+                
             </div>
             
         </div>
@@ -78,21 +132,67 @@ export default {
                 this.openEnrollments.push(enrollment);
             }
         },
-        getStreamInCourse(courseId){
+        getStream(){
             var cObject = this.$store.getters.getCache("canvas");
-            var stream = cObject.stream.filter(s => s.course_id == courseId);
+            var stream = cObject.stream;
+
+            stream.sort((a,b) => {
+                if(a.updated_at == undefined || a.updated_at == null){
+                 a.updated_at = a.created_at;
+                }
+                if(b.updated_at == undefined || b.updated_at == null){
+                 b.updated_at = b.created_at;
+                }
+                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+            });
 
             return stream;
         },
-        getTodoInCourse(courseId){
+        getCourseById(id){
+            var cObject = this.$store.getters.getCache("canvas");
+            console.log(cObject);
+            var course = cObject.enrollments.filter(e => e.id == id)[0];
+            return course;
+        },
+        getBaseCanvasLink(){
+            var baseUrl = this.$store.getters.getSettingValue("canvas_url");
+            if(baseUrl.includes("http")){
+                return baseUrl;
+            }
+            return "https://" + baseUrl;
+        },
+        formatMessage(message){
+            var messageParts = message.split("__");
+            message = messageParts[0];
+
+            var urlRegex = /(https?:\/\/[^\s]+)/g;
+            message = message.replace(urlRegex, function(url) {
+                return '<a class="highlight-container text" style="margin:5px" target="_blank" href="' + url + '">' + url + '</a>';
+            })
+
+            return message;
+        },
+        getDiscussionEntry(entries, earlist){
+            entires = entries.sort((a,b) => {
+                if(earlist){
+                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                }
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            })
+
+            return entries[0];
+        },
+        getTodoInCourse(enrollment){
 
             var maxDaysInAdvance = 7;
             if(this.$store.getters.getSettingValue("canvas_max_days_advance") != undefined){
                 maxDaysInAdvance = parseInt(this.$store.getters.getSettingValue("canvas_max_days_advance"));
             }
 
+            
+
             var cObject = this.$store.getters.getCache("canvas");
-            var assignments = this.activelyShowingEnrollments.find(e => e.id == courseId).assignments.map(a => {
+            var assignments = enrollment.assignments.map(a => {
 
                 var type = "submitting";
                 if(a.submission_types.includes("online_quiz")){

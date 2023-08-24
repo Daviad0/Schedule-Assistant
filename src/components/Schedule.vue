@@ -22,10 +22,10 @@
         
                     <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start">
                         <div v-for="dayOfWeek in (this.$store.getters.getSettingValue('sched_week_sun_sat') == 'no' ? [1,2,3,4,5] : [0,1,2,3,4,5,6])" style="width:260px;padding-top:10px;">
-                            <span class="text f-medium f-bold">{{ days[dayOfWeek] }}</span>
+                            <span class="text f-medium f-bold center block">{{ days[dayOfWeek] }}</span>
                             <div style="margin-top:15px;width:100%">
                                 <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'small'" @event="scheduleItemEvent($event)" :wrap="true" v-for="item in getEventsOnDay(dayOfWeek)" style="max-width: 100%;" :key="item.id" :data="item"/>
-                                <span class="text f-medium f-bold" style="opacity: 0.7;margin-top:20px" v-if="getEventsOnDay(dayOfWeek).length == 0"><i>No Events</i></span>
+                                <span class="text f-medium f-bold center block" style="opacity: 0.7;margin-top:20px" v-if="getEventsOnDay(dayOfWeek).length == 0"><i>No Events</i></span>
                             </div>
 
                         
@@ -39,8 +39,8 @@
                 <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'day' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
         
                     <div class="flex-center" style="flex-wrap: wrap;align-items: start;">
-                        <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in schedule.filter(s => s.startTime < this.endOfToday)" :key="item.id" :data="item"/>
-                        <span class="text f-medium f-bold" style="opacity: 0.7;" v-if="schedule.filter(s => s.startTime < this.endOfToday && s.deleted != true).length == 0"><i>No Events</i></span>
+                        <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in getEventsOnDay((new Date()).getDay())" :key="item.id" :data="item"/>
+                        <span class="text f-medium f-bold center block" style="opacity: 0.7;" v-if="schedule.filter(s => s.startTime < this.endOfToday && s.deleted != true).length == 0"><i>No Events</i></span>
                     </div>
                     
                 </div>
@@ -186,8 +186,13 @@ export default {
             return events;
         },
         checkForAnyNotifs(){
+            var notifyTime = 10;
+            if(this.$store.getters.getSettingValue("sched_show_notification") != undefined){
+                notifyTime = parseInt(this.$store.getters.getSettingValue("sched_show_notification"));
+            }
+            if(notifyTime < 0) return;
             this.schedule.forEach(e => {
-                if(e.startTime > new Date() && (e.startTime.getTime() - (new Date().getTime()) < 1000*60*10) && !this.notifsSentForIds.includes(e.id)){
+                if(e.startTime > new Date() && (e.startTime.getTime() - (new Date().getTime()) < 1000*60*notifyTime) && !this.notifsSentForIds.includes(e.id)){
                     this.notifsSentForIds.push(e.id);
                     sendNotification({title: "Upcoming Event", body: e.title + " is starting soon!"});
                 }

@@ -2,7 +2,7 @@
     <div class="raised-container" v-if="size == 'regular'" style="overflow:hidden" :style="closing ? 'margin:0px;max-width:0px;max-height:0px;padding:0px;min-width:0px;border:0px solid transparent' : 'padding:10px;min-width:100px;max-width:500px;max-height:500px;margin:5px'" :class="shouldFlash ? 'anim-border-main-flash':(isActive ? 'solid-border' : 'transparent-border')">
         <div class="flex-apart">
             <div style="margin-left:10px;margin-right:10px">
-                <span class="text f-medium f-bold" :style="wrap == true ? '' : 'white-space: nowrap;'">{{data.title}}</span>
+                <span class="text f-medium f-bold center" :style="wrap == true ? '' : 'white-space: nowrap;'">{{data.title}}</span>
             </div>
             <div :class="isActive ? 'highlight-container' : 'solid-highlight-container'">
                 <span class="text f-small" :style="wrap == true ? '' : 'white-space: nowrap;'" v-if="isActive">Until {{ formatDate(data.endTime) }}</span>
@@ -11,11 +11,11 @@
             
         </div>
         <div style="margin:10px">
-            <span class="text f-small"><i>{{data.description}}</i></span>
+            <span class="text f-small center"><i>{{data.description}}</i></span>
         </div>
         <div class="flex-apart">
             <div class="flex-center">
-                <Tag :name="'Class'"/>
+                <Tag :name="data.recurringData != undefined ? 'Recurring' : 'Single'"/>
             </div>
             <div class="flex-center" style="margin-right:5px" v-if="!finished">
                 <Lottie :src="'Edit.json'" :mode="'hover'" :loop="true" :background="'transparent'" style="width:20px;transform:rotate(45deg);margin:5px" @click="emitScheduleItemChange('edit')" />
@@ -34,7 +34,7 @@
         <div class="flex-center" style="margin-top:5px">
             
             <div>
-                <span class="text f-small f-bold" style="white-space:break-spaces;">{{data.title}}</span>
+                <span class="text f-small f-bold center" style="white-space:break-spaces;">{{data.title}}</span>
             </div>
         </div>
         <div class="flex-center" style="margin-top:5px">
@@ -44,7 +44,7 @@
             </div>
         </div>
         <div style="margin-top:10px">
-            <span class="text f-tiny" style="white-space:normal;"><i>{{data.description}}</i></span>
+            <span class="text f-tiny center block" style="white-space:normal;"><i>{{data.description}}</i></span>
         </div>
         <div class="flex-center" style="margin-left:5px" v-if="!finished">
                 <Lottie :src="'Edit.json'" :mode="'hover'" :loop="true" :background="'transparent'" style="width:20px;transform:rotate(45deg);margin:5px" @click="emitScheduleItemChange('edit')" />

@@ -10,20 +10,20 @@
                     <div style="overflow-y: hidden;" :style="showExtraDetails ? 'max-height:500px' : 'max-height:0px'">
                         <div class="flex-apart">
                             <div style="width:30%;margin:0px 5px">
-                                <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Use Tag</span>
+                                <span class="text f-small block" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Use Tag</span>
                                 <input ref="tag" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%" placeholder="Work"/>
                                 
                             </div>
                             <div style="width:60%;margin:0px 5px">
-                                <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Due At</span>
-                                <input ref="due" class="raised-container transparent-border text f-small" style="padding:8px 0px;width:100%" type="datetime-local"/>
+                                <span class="text f-small block" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Due At</span>
+                                <input ref="due" class="raised-container transparent-border text f-small center" style="padding:8px 0px;width:100%" type="datetime-local"/>
                             </div>
                             
                             
                         </div>
                         <div class="flex-apart" style="margin-top:10px;resize: none;">
                             <div style="width:90%;margin:0px 5px">
-                                <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Additional Information</span>
+                                <span class="text f-small block" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Additional Information</span>
                                 <textarea ref="extra" class="raised-container transparent-border text f-medium" style="text-align: left;width:100%;height:80px" placeholder="Optional Extra Information"></textarea>
                                 
                             </div>
@@ -47,7 +47,7 @@
             
             <div style="margin-top:20px;width:100%;height:80%" ref="itemlist">
                 <div class="flex-center" style="align-items: start;height:100%" v-if="viewMode == 'schedule-top'">
-                    <div style="width:50%;overflow-y:auto"  :style="showExtraDetails ? 'max-height:60%' : 'max-height:80%'">
+                    <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;"  :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (highPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
                         <div v-for="item in highPriorityItems()">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
@@ -55,7 +55,7 @@
                             
                         </div>
                     </div>
-                    <div style="width:50%;overflow-y:auto" :style="showExtraDetails ? 'max-height:60%' : 'max-height:80%'">
+                    <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;" :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (lowPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
                         <div v-for="item in lowPriorityItems()">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
@@ -97,7 +97,8 @@ export default {
             }],
             showExtraDetails: false,
             usedCategories: [],
-            viewMode: "schedule-side"
+            viewMode: "schedule-side",
+            notifsSentForIds: []
         }
     },
     methods: {
@@ -150,6 +151,13 @@ export default {
             this.$refs.extra.value = "";
             this.showExtraDetails = false;
 
+            setTimeout(() => {
+                    this.$refs.itemlist.style.display = "none";
+                    setTimeout(() => {
+                        this.$refs.itemlist.style.display = "";
+                    }, 10);
+                    
+                }, 500);
             this.saveChecklist();
         },
         handleChecklistItem(event){
@@ -244,6 +252,20 @@ export default {
             if(event.event == "viewMode"){
                 this.viewMode = event.data;
             }
+        },
+        checkForAnyNotifs(){
+            var notifyTime = 10;
+            if(this.$store.getters.getSettingValue("check_show_notification") != undefined){
+                notifyTime = parseInt(this.$store.getters.getSettingValue("check_show_notification"));
+            }
+            if(notifyTime < 0) return;
+            this.items.forEach(e => {
+                if(e.dueAt == undefined) return;
+                if(e.dueAt > new Date() && (e.dueAt.getTime() - (new Date().getTime()) < 1000*60*notifyTime) && !this.notifsSentForIds.includes(e.name + e.dueAt.getTime())){
+                    this.notifsSentForIds.push(e.name + e.dueAt.getTime());
+                    sendNotification({title: "Item Due Soon!", body: e.title + " is due soon!"});
+                }
+            });
         }
     },
     mounted(){
@@ -252,6 +274,10 @@ export default {
         this.readSchedule();
 
         this.$emit("setcb", this.handleEventsFromAbove);
+
+        setInterval(() => {
+            this.checkForAnyNotifs();
+        }, 1000*20);
     }
     
 }

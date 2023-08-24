@@ -20,7 +20,7 @@
         <div style="position: absolute;top:-10px;left:0;overflow-y:hidden;z-index: 1001;" :style="!open ? 'max-height:0px' : 'max-height:100vh'">
             <div class="solid-container transparent-border text shadow" :style="'width:' + this.width + 'px'">
                 <div class="highlight-container hover-darken cursor-pointer" @click="selectOption(optionId)" v-for="optionId in showAvailableOptions()">
-                    <span class="text f-medium">{{ getApplicableOption(optionId) }}</span>
+                    <span class="text f-medium center block">{{ getApplicableOption(optionId) }}</span>
                 </div>
                 
             </div>

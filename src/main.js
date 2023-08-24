@@ -137,7 +137,8 @@ const store = new Vuex.Store({
 
             if(res.data.errors) return;
 
-            res.data.forEach(async (e) => {
+            for(var cI = 0; cI < res.data.length; cI++){
+                var e = res.data[cI];
                 if(e.enrollments.length == 0) return;
 
                 var enrollInformation = e.enrollments[0];
@@ -160,9 +161,13 @@ const store = new Vuex.Store({
                 // if(courseInfo.data.errors) return;
 
                 // e.name = courseInfo.data.name;
-            })
+            
 
+            
+            }
             this.state.cache["canvas"].enrollments = res.data;
+            
+                
             
         },
         async canvas_getStream(){
@@ -209,6 +214,7 @@ import SettingsOverlay from "./components/SettingsOverlay.vue";
 import Notes from "./components/Notes.vue";
 import Canvas from "./components/Canvas.vue";
 import MultiDropdown from "./components/MultiDropdown.vue";
+import NoteOverlay from "./components/NoteOverlay.vue";
 
 
 const app = createApp(App)
@@ -232,5 +238,6 @@ app.component("SettingsOverlay", SettingsOverlay);
 app.component("Notes", Notes)
 app.component("Canvas", Canvas);
 app.component("MultiDropdown", MultiDropdown);
+app.component("NoteOverlay", NoteOverlay);
 app.mount("#app")
 

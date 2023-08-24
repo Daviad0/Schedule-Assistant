@@ -6,10 +6,10 @@
             </div>
             <div style="flex-wrap: wrap;" class="flex-center">
                 <div v-for="document in documents" style="margin:10px">
-                    <div class="raised-container" style="width:100px;height:60px;margin-bottom:15px;border-top-left-radius: 4px;">
+                    <div class="raised-container cursor-pointer" style="width:100px;height:60px;margin-bottom:15px;border-top-left-radius: 4px;" @click="openDocument(document)">
 
                     </div>
-                    <span class="text f-medium">{{ document.name }}</span>
+                    <span class="text f-medium center block">{{ document.name }}</span>
                 </div>
             </div>
         </div>
@@ -38,6 +38,11 @@ export default {
                     remindAt: undefined
                 }
             ]
+        }
+    },
+    methods: {
+        openDocument(document){
+            this.$emit("overlay", document);
         }
     }
 }

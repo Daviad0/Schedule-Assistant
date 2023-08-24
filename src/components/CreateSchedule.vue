@@ -40,17 +40,17 @@
             <div style="width:55%;overflow-x: hidden;" class="flex-center">
                 <div :style="this.eventMode == 'single' ? 'max-width:100%;max-height:100%;opacity:1' : 'max-width:0px;max-height:0px;opacity:0'" style="overflow:hidden">
                     <div>
-                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Event Date</span>
+                        <span class="text f-small block" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Event Date</span>
                         <input ref="startDateSingle" @change="updateEventDetails('startDate', $event.srcElement.value)" class="light-container transparent-border text f-small" style="text-align: left;padding:8px 10px" placeholder="Date" type="date"/>
                     </div>
                 </div>
                 <div :style="this.eventMode == 'recurring' ? 'max-width:100%;max-height:100%;opacity:1' : 'max-width:0px;max-height:0px;opacity:0'" class="flex-center"  style="overflow-x:hidden">
                     <div style="width:50%;margin-right:5px">
-                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Start Date</span>
+                        <span class="text f-small block" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">Start Date</span>
                         <input ref="startDate" @change="updateEventDetails('startDate', $event.srcElement.value)" class="light-container transparent-border text f-small" style="text-align: left;padding:8px 10px" placeholder="Date" type="date"/>
                     </div>
                     <div style="width:50%;margin-left:5px">
-                        <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">End Date</span>
+                        <span class="text f-small block" style="text-align: left;margin-left: 10px;margin-bottom:2px;white-space: nowrap;">End Date</span>
                         <input ref="endDate" @change="updateEventDetails('endDate', $event.srcElement.value)" class="light-container transparent-border text f-small" style="text-align: left;padding:8px 10px" placeholder="Date" type="date"/>
                     </div>
                 </div>

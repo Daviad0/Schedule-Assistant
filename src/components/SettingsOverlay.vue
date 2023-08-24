@@ -159,6 +159,12 @@ export default {
                     placeholder: '0 = No Flash'
                 },
                 {
+                    id: 'sched_show_notification', //done
+                    display: 'Minutes Before to Show Notification',
+                    type: 'number',
+                    placeholder: '<0 = No Notification'
+                },
+                {
                     id: 'check_hide_completed_items', // done
                     display: 'Minutes to Hide Completed Items',
                     type: 'number',
@@ -249,6 +255,12 @@ export default {
 
 
                     ]
+                },
+                {
+                    id: 'check_show_notification', //done
+                    display: 'Minutes Before Due to Show Checklist',
+                    type: 'number',
+                    placeholder: '<0 = No Notification'
                 },
                 {
                     id: 'panel_mode',
