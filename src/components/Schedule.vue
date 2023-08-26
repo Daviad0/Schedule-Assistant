@@ -22,7 +22,7 @@
         
                     <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start">
                         <div v-for="dayOfWeek in (this.$store.getters.getSettingValue('sched_week_sun_sat') == 'no' ? [1,2,3,4,5] : [0,1,2,3,4,5,6])" style="width:260px;padding-top:10px;">
-                            <span class="text f-medium f-bold center block">{{ days[dayOfWeek] }}</span>
+                            <span class="text f-medium center block"><t class="f-bold">{{ days[dayOfWeek] }}</t> {{ getDate(dayOfWeek) }}</span>
                             <div style="margin-top:15px;width:100%">
                                 <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'small'" @event="scheduleItemEvent($event)" :wrap="true" v-for="item in getEventsOnDay(dayOfWeek)" style="max-width: 100%;" :key="item.id" :data="item"/>
                                 <span class="text f-medium f-bold center block" style="opacity: 0.7;margin-top:20px" v-if="getEventsOnDay(dayOfWeek).length == 0"><i>No Events</i></span>
@@ -89,6 +89,15 @@ export default {
             
            
         },
+        getDate(dayOfWeek){
+            var date = new Date();
+            date.setDate(date.getDate() + (dayOfWeek + 7 - date.getDay()) % 7);
+            
+            // return in format mm/dd
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+            return (month < 10 ? '0' : '') + month + '/' + (day < 10 ? '0' : '') + day;
+        },
         scheduleItemEvent(event){
             if(event.event == "edit"){
                 this.openPopup(0, event.data);
@@ -139,6 +148,7 @@ export default {
         },
         async saveSchedule(){
             await writeTextFile('schedule.json', JSON.stringify(this.schedule), { dir: BaseDirectory.AppData });
+            this.$store.dispatch("backup");
         },
         async readSchedule(){
             var objects = [];

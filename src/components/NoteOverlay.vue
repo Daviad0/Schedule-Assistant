@@ -1,7 +1,7 @@
 <template>
     <div class="raised-container blur-bg flex-apart" style="width:100%;height:100%;flex-direction: column;">
         <div class="flex-center" style="margin:20px 0px;width:100%">
-            <span class="text f-xlarge f-bold">Note Document</span>
+            <span class="text f-xlarge f-bold">Editing "{{ note.name }}"</span>
         </div>
         <div style="height:100%;width:100%;overflow-y:auto;text-align: left;">
             <textarea ref="mdeEditor" style="text-align: left;height:100%;width:100%" class="left-align">
@@ -30,7 +30,7 @@ export default {
         setTimeout(() => {
             this.mde = new SimpleMDE({
                 element: this.$refs.mdeEditor,
-                initialValue: "Lmao",
+                initialValue: this.note.content,
             });
         }, 100);
         

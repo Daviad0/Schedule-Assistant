@@ -1,11 +1,22 @@
 <template>
-    <div style="margin:20px;height:100%;width:100%;" ref="base">
-        <div class="flex-center" style="flex-direction: column;justify-content: start;height: 100%;">
-            <div class="flex-center">
-                <ButtonGroup @change="openTab = $event" :buttons="['Stream', 'Courses', 'Announcements']"/>
+    <div style="margin:20px;height:100%;width:100%;padding:20px;border-radius: 16px;" class="dashed-border" ref="base">
+        <div class="flex-center" style="flex-direction: column;justify-content:start;height: 100%;">
+            <div class="flex-apart" style="width:100%">
+                <div class="flex-center" style="justify-content: start;">
+                    <img style="height:60px" :src="getTitleImage()"/>
+                    <span style="margin-left:20px" class="text f-medium f-bold">Canvas</span>
+                </div>
+                
+                <div class="flex-center">
+                    <ButtonGroup @change="openTab = $event" :buttons="['Stream', 'Courses', 'Announcements']"/>
+                </div>
             </div>
-            <div class="flex-center" style="height:100%;margin-top:10px;width:100%">
-                <div style="margin-top:20px;overflow-y: auto;width:100%;padding-bottom:100px;overflow-x:hidden;height:90%" :style="openTab == 'Stream' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:0px'">
+            
+            <div class="flex-center" style="height:80%;margin-top:10px;width:100%">
+                <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:100%" :style="openTab == 'Stream' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:100%'">
+                    <div class="flex-center" v-if="getStream().filter(s => s.type == 'Message').length == 0" style="margin-top:50px;white-space: nowrap;">
+                        <span class="text f-medium center block" style="opacity: 0.7;">Your Stream is Empty :(</span>
+                    </div>
                     <div v-for="streamItem in getStream().filter(s => s.type == 'Message')" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             
@@ -28,7 +39,7 @@
                         
                     </div>
                 </div>
-                <div style="margin-top:20px;overflow-y: auto;width:100%;padding-bottom:100px;overflow-x:hidden;height:90%;" :style="openTab == 'Courses' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:0px'">
+                <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:100%;" :style="openTab == 'Courses' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:100%'">
                     <div v-for="enrollment in activelyShowingEnrollments" style="margin:10px;padding:20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             <div class="flex-center">
@@ -74,8 +85,8 @@
                         </div>
                     </div>
                 </div>
-                <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:90%" :style="openTab == 'Announcements' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:0px'">
-                    <div class="flex-center">
+                <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:100%" :style="openTab == 'Announcements' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:100%'">
+                    <div class="flex-center" style="margin-top:50px;white-space: nowrap;">
                         <span class="text f-medium center block" style="opacity: 0.7;" v-if="getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic').length == 0">No Announcements to see :(</span>
                     </div>
                     
@@ -120,6 +131,12 @@ export default {
         }
     },
     methods: {
+        getTitleImage(){
+            var cObject = this.$store.getters.getCache("canvas");
+            var image = cObject.brand["ic-brand-header-image"];
+            if(cObject.brand == undefined) return "";
+            return image;
+        },
         getEnrollments(){
             var cObject = this.$store.getters.getCache("canvas");
             console.log(cObject);
@@ -135,8 +152,17 @@ export default {
         getStream(){
             var cObject = this.$store.getters.getCache("canvas");
             var stream = cObject.stream;
+            var ignoredCourses = this.$store.getters.getSettingValue("canvas_ignore_courses");
+            if(ignoredCourses == undefined){
+                ignoredCourses = [];
+            }
+
+            stream = stream.filter(s => !ignoredCourses.includes(s.course_id));
+
 
             stream.sort((a,b) => {
+
+
                 if(a.updated_at == undefined || a.updated_at == null){
                  a.updated_at = a.created_at;
                 }

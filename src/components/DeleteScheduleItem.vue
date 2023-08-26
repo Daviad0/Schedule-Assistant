@@ -56,11 +56,16 @@ export default {
             this.deleteMode = mode;
         },
         formatMultiDays(days){
+            var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             var daysString = "";
             for(var i = 0; i < days.length; i++){
                 daysString += days[i];
                 if(i != days.length - 1){
-                    daysString += ", ";
+                    if(i == days.length - 2)
+                        daysString += " and ";
+                    else
+                        daysString += ", ";
+                    
                 }
             }
             return daysString;

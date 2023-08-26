@@ -1,5 +1,5 @@
 <template>
-    <div style="margin:20px;height:100%" ref="base">
+    <div style="margin:20px;height:100%;padding:20px;border-radius: 16px;" ref="base" class="dashed-border">
         <div style="height:100%;">
             <div class="flex-apart">
                 <div style="width:100%">
@@ -88,13 +88,7 @@ export default {
     name: "Checklist",
     data(){
         return {
-            items: [{
-                name: "Do this thing!",
-                checkedAt: undefined,
-                createdAt: new Date('8/3/2023 16:00:00'),
-                dueAt: new Date('8/3/2023 23:36:00'),
-                category: "Work"
-            }],
+            items: [],
             showExtraDetails: false,
             usedCategories: [],
             viewMode: "schedule-side",
@@ -184,6 +178,7 @@ export default {
         },
         async saveChecklist(){
             await writeTextFile('checklist.json', JSON.stringify(this.items), { dir: BaseDirectory.AppData });
+            this.$store.dispatch("backup");
         },
         async readSchedule(){
             var objects = [];

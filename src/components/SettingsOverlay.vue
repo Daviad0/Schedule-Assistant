@@ -55,13 +55,26 @@
             </div>
 
         </div>
-        <div class="flex-center" style="margin-right:25px;margin-bottom:10px;width:100%;justify-content: end;">
-            <Lottie @click="closeSettings()" :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'"
-                style="width:60px" />
+        <div class="flex-apart" style="width: 100%;margin-top: 20px;">
+            <div class="flex-center" style="margin-left:25px;width:100%;justify-content: start;">
+                <div class="raised-container cursor-pointer" @click="downloadSettings()" style="padding:10px 20px;margin-right:10px">
+                    <span class="text f-medium f-bold">Download Settings</span>
+                </div>
+                <div class="raised-container cursor-pointer" @click="importSettings()" style="padding:10px 20px">
+                    <span class="text f-medium f-bold">Import Settings</span>
+                </div>
+            </div>
+            <div class="flex-center" style="margin-right:25px;margin-bottom:10px;width:100%;justify-content: end;">
+                <Lottie @click="closeSettings()" :src="'Checkmark2.json'" :mode="'click'" :background="'transparent'"
+                    style="width:60px" />
+            </div>
         </div>
+        
     </div>
 </template>
 <script>
+import { save, open } from '@tauri-apps/api/dialog';
+import { writeTextFile, BaseDirectory, readTextFile } from '@tauri-apps/api/fs';
 export default {
     name: "SettingsOverlay",
     props: {
@@ -70,6 +83,22 @@ export default {
     data: () => {
         return {
             settings: [
+            {
+                    id: 'general_auto_backup', // done except delete
+                    display: 'Automatically Backup Data',
+                    type: 'dropdown',
+                    options: [
+                        {
+                            id: 'yes',
+                            display: 'Yes'
+                        },
+                        {
+                            id: 'no',
+                            display: 'No'
+                        }
+
+                    ]
+                },
                 {
                     id: 'sched_week_sun_sat', // done
                     display: 'Display Saturday & Sunday in Week Mode',
@@ -355,6 +384,33 @@ export default {
                     ]
                 },
                 {
+                    id: 'canvas_ignore_courses',
+                    display: 'Ignore Announcements & Updates from Courses',
+                    type: 'multi',
+                    options: [
+                        
+
+
+                    ],
+                    populateOptions: (context) => {
+                        var cObject = context.$store.getters.getCache("canvas");
+                        var enrollments = cObject.enrollments;
+                        if(enrollments == undefined){
+                            return [];
+                        }
+
+                        var options = [];
+                        enrollments.forEach(e => {
+                            options.push({
+                                id: e.id,
+                                display: e.course_code
+                            });
+                        });
+
+                        return options;
+                    }
+                },
+                {
                     id: 'canvas_max_days_advance',
                     display: 'Show Items in Days in Advance',
                     type: 'number',
@@ -364,6 +420,10 @@ export default {
 
             ],
             categories: [
+                {
+                    prefix: 'general',
+                    display: 'General Settings'
+                },
                 {
                     prefix: 'sched',
                     display: 'Scheduling'
@@ -410,8 +470,57 @@ export default {
             return val;
         },
         closeSettings() {
+            this.$store.dispatch("backup");
             this.$emit('close');
+        },
+        async downloadSettings(){
+            var settingsObject = this.$store.state.settings;
+            var settingsString = JSON.stringify(settingsObject);
+            var filePath = await save({
+                filters: [{
+                    name: 'RobosmrtSettings',
+                    extensions: ['json']
+                }, {
+                    name: 'All Files',
+                    extensions: ['*']
+                }]
+            });
+
+            if(filePath == undefined){
+                return;
+            }
+
+            await writeTextFile(filePath, settingsString);
+        },
+        async importSettings(){
+            var filePath = await open({
+                filters: [{
+                    name: 'RobosmrtSettings',
+                    extensions: ['json']
+                }]
+            });
+
+            if(filePath == undefined){
+                return;
+            }
+            try{
+                var settingsString = await readTextFile(filePath);
+                var settingsObject = JSON.parse(settingsString);
+                this.$store.state.settings = settingsObject;
+                this.$store.dispatch("saveSettings");
+
+            }catch(e){
+
+            }
+            
         }
+    },
+    mounted() {
+        this.settings.forEach(setting => {
+            if (setting.populateOptions != undefined) {
+                setting.options = setting.populateOptions(this);
+            }
+        });
     }
 }
 </script>

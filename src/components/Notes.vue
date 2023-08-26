@@ -1,5 +1,5 @@
 <template>
-    <div style="margin:20px;height:100%;width:100%" ref="base">
+    <div style="margin:20px;height:100%;width:100%;padding:20px;border-radius: 16px;" class="dashed-border" ref="base">
         <div style="height:100%;flex-direction: column;justify-content: start;" class="flex-center">
             <div>
 
@@ -41,9 +41,22 @@ export default {
         }
     },
     methods: {
+        editNote(data){
+            
+        },
         openDocument(document){
             this.$emit("overlay", document);
-        }
+        },
+        handleEventsFromAbove(name, data){
+
+            // if(name == 'editNote'){
+            //     this.createScheduleObject(data);
+            // }else if(name == 'createNote'){
+            //     this.deleteScheduleItem(data);
+            // }else if(name == 'deleteNote'){
+            //     this.deleteScheduleItem(data);
+            // }
+        },
     }
 }
 </script>

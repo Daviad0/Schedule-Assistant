@@ -10,7 +10,7 @@ import Greet from "./components/Greet.vue";
     <div class="flex-center">
       <span class="text f-large f-bold" style="margin-left:20px">Welcome</span>
       <Lottie @click="openOverlay('settings')" :src="'Settings.json'" :mode="'click'" style="width:30px;margin:10px" :background="'transparent'"/>
-      <Lottie @click="openOverlay('note')" :src="'Settings.json'" :mode="'click'" style="width:30px;margin:10px" :background="'transparent'"/>
+     
 
     </div>
     <div class="flex-center">
@@ -25,15 +25,15 @@ import Greet from "./components/Greet.vue";
       <Lottie :src="'Loading.json'" :mode="'loop'" style="width:200px;margin-top:10px;opacity:0.6" :background="'transparent'"/>
       
     </div>
-    <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;height:100%" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
+    <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;height:80vh" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
 
       <Schedule v-if="!loading" @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
-      <div :style="sizeMode == 'schedule-top' ? 'width:50%;height:30vh;justify-content:start' : 'width:30%;height:60vh;flex-direction:column;justify-content:start'" class="flex-apart">
-        <Notes style="width:100%" @overlay="openOverlay('note')" v-if="!loading" @setcb="setCB('notes', $event)" @encourage="addEncouragement($event)"  />
-        <Canvas style="width:100%" v-if="!loading" />
+      <div :style="sizeMode == 'schedule-top' ? 'width:50%;height:30vh;justify-content:start;margin-top:5px' : 'width:30%;height:70vh;flex-direction:column;justify-content:start'" class="flex-apart">
+        <Notes style="width:100%" :style="sizeMode == 'schedule-top' ? 'height:100%' : 'height:70%'" @overlay="openOverlay('note', $event)" v-if="!loading" @setcb="setCB('notes', $event)" @encourage="addEncouragement($event)"  />
+        <Canvas style="width:100%" :style="sizeMode == 'schedule-top' ? 'height:100%' : 'height:70%'" v-if="!loading" />
       </div>
       <!-- <Checklist /> -->
-      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:40%;height:40vh' : 'width:30%;height:70vh'" />
+      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:40%;height:30vh' : 'width:30%;height:70vh'" />
       
       
     </div>
@@ -104,7 +104,7 @@ import Greet from "./components/Greet.vue";
     </div>
     <div class="overlay">
       <SettingsOverlay @close="showOverlay = false" v-if="showOverlay && overlayToShow == 'settings'"/>
-      <NoteOverlay @close="showOverlay = false" v-if="showOverlay && overlayToShow == 'note'"/>
+      <NoteOverlay @close="showOverlay = false" :note="overlayData" v-if="showOverlay && overlayToShow == 'note'"/>
     </div>
   </div>
   
@@ -154,6 +154,7 @@ export default {
       sizeMode: "schedule-top",
       showOverlay: false,
       overlayToShow: null,
+      overlayData: null,
       bottomPanelMode: "leds"
     }
   },
@@ -177,9 +178,11 @@ export default {
             return Math.random().toString(36).substr(2, 9);
         
         },
-    openOverlay(overlayName){
+    openOverlay(overlayName, data){
       this.overlayToShow = overlayName;
+      this.overlayData = data;
       this.showOverlay = true;
+      
     
     },
     addEncouragement(text){

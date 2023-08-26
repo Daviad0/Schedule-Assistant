@@ -11,7 +11,7 @@
             
         </div>
         <div style="margin:10px">
-            <span class="text f-small center"><i>{{data.description}}</i></span>
+            <span class="text f-small center block"><i>{{data.description}}</i></span>
         </div>
         <div class="flex-apart">
             <div class="flex-center">

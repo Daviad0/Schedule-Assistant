@@ -93,6 +93,7 @@ const store = new Vuex.Store({
             await this.dispatch("canvas_getTodo");
             await this.dispatch("canvas_getEnrollments");
             await this.dispatch("canvas_getStream");
+            await this.dispatch("canvas_getBrand")
 
             
             await this.dispatch("saveCache", "canvas");
@@ -121,6 +122,23 @@ const store = new Vuex.Store({
 
 
 
+        },
+        async canvas_getBrand(){
+            var baseUrl = this.state.settings.canvas_url;
+            var token = this.state.settings.canvas_token;
+            var uid = this.state.settings.canvas_uid;
+            if(!baseUrl.toLowerCase().includes("http")){
+                baseUrl = "https://" + baseUrl;
+            }
+
+            var res = await http.fetch(baseUrl + "/api/v1/brand_variables", {
+                method: "GET",
+                headers: { Authorization: "Bearer " + token }
+            });
+
+            if(res.data.errors) return;
+
+            this.state.cache["canvas"].brand = res.data;
         },
         async canvas_getEnrollments() {
             var baseUrl = this.state.settings.canvas_url;
@@ -186,6 +204,29 @@ const store = new Vuex.Store({
             if(res.data.errors) return;
 
             this.state.cache["canvas"].stream = res.data;
+        },
+        async backup(){
+
+            var backupObject = {};
+            var shouldBackup = this.state.settings["general_auto_backup"] == "yes";
+
+            try{
+                var json = await readTextFile('schedule.json', { dir: BaseDirectory.AppData });
+                backupObject.schedule = JSON.parse(json);
+            }catch(e){
+                console.log(e);
+            }
+
+            try{
+                var json = await readTextFile('checklist.json', { dir: BaseDirectory.AppData });
+                backupObject.checklist = JSON.parse(json);
+            }catch(e){
+                console.log(e);
+            }
+
+            backupObject.settings = this.state.settings;
+
+            await writeTextFile('robosmrt-backup.json', JSON.stringify(backupObject), { dir: BaseDirectory.Document });
         }
     },
     getters: {
