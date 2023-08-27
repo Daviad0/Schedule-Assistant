@@ -1,5 +1,5 @@
 <template>
-    <div style="margin:20px;height:100%;padding:20px;border-radius: 16px;" ref="base" class="dashed-border">
+    <div style="height:100%;padding:20px;border-radius: 16px;" :style="viewMode == 'schedule-top' ? 'margin:0px 20px' : 'margin:20px'" ref="base" class="dashed-border">
         <div style="height:100%;">
             <div class="flex-apart">
                 <div style="width:100%">

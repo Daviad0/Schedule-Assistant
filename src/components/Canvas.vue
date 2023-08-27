@@ -1,6 +1,6 @@
 <template>
     <div style="margin:20px;height:100%;width:100%;padding:20px;border-radius: 16px;" class="dashed-border" ref="base">
-        <div class="flex-center" style="flex-direction: column;justify-content:start;height: 100%;">
+        <div class="flex-center" style="flex-direction: column;justify-content:start;height: 100%;" v-if="ready">
             <div class="flex-apart" style="width:100%">
                 <div class="flex-center" style="justify-content: start;">
                     <img style="height:60px" :src="getTitleImage()"/>
@@ -86,15 +86,15 @@
                     </div>
                 </div>
                 <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:100%" :style="openTab == 'Announcements' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:100%'">
-                    <div class="flex-center" style="margin-top:50px;white-space: nowrap;">
-                        <span class="text f-medium center block" style="opacity: 0.7;" v-if="getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic').length == 0">No Announcements to see :(</span>
+                    <div class="flex-center" style="margin-top:50px;white-space: nowrap;" v-if="getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic').length == 0">
+                        <span class="text f-medium center block" style="opacity: 0.7;">No Announcements to see :(</span>
                     </div>
                     
                     <div v-for="streamItem in getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic')" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             
                             <div class="flex-center">
-                                <span class="text f-medium f-bold">{{ s.type == 'DiscussionTopic' ? 'Discussion Post' : 'Announcement' }}</span>
+                                <span class="text f-medium f-bold">{{ streamItem.type == 'DiscussionTopic' ? 'Discussion Post' : 'Announcement' }}</span>
                                 <div class="solid-highlight-container">
                                     <span class="text f-small">{{ getCourseById(streamItem.course_id).name }}</span>
                                 </div>
@@ -107,7 +107,7 @@
                             
                         </div>
                         <div class="flex-center">
-                            <span class="text f-small center block" style="white-space: normal;word-break: break-all;margin:10px" v-html="getDiscussionEntry(streamItem.root_discussion_entries, streamItem.type == 'Announcement').message"></span>
+                            <span class="text f-small center block" style="white-space: normal;word-break: break-all;margin:10px" v-html="getDiscussionEntry(streamItem)"></span>
                         </div>
                         
                     </div>
@@ -127,7 +127,8 @@ export default {
         return {
             activelyShowingEnrollments: [],
             openEnrollments: [],
-            openTab: "Summary"
+            openTab: "Summary",
+            ready: false
         }
     },
     methods: {
@@ -140,7 +141,12 @@ export default {
         getEnrollments(){
             var cObject = this.$store.getters.getCache("canvas");
             console.log(cObject);
-            this.activelyShowingEnrollments = cObject.enrollments;
+
+            var enrollments = cObject.enrollments;
+            
+            this.activelyShowingEnrollments = enrollments;
+            //this.ready = true;
+
         },
         toggleOpenEnrollment(enrollment){
             if(this.openEnrollments.includes(enrollment)){
@@ -198,15 +204,28 @@ export default {
 
             return message;
         },
-        getDiscussionEntry(entries, earlist){
-            entires = entries.sort((a,b) => {
+        getDiscussionEntry(item){
+            var entries = item.root_discussion_entries;
+            var baseMessage = item.message;
+            var earlist = true;
+
+            entries = entries.sort((a,b) => {
                 if(earlist){
                     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                 }
                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
             })
 
-            return entries[0];
+            if(entries.length == 0){
+
+                baseMessage = baseMessage.replace("<a ", "<a class='highlight-container text' style='margin:5px' target='_blank' ");
+
+                return baseMessage;
+            }
+
+
+
+            return entries[0].message;
         },
         getTodoInCourse(enrollment){
 
@@ -289,13 +308,22 @@ export default {
             return Math.floor(total / 1000) + "s";
 
             // get most accur
+        },
+        checkIfReady(){
+            if(this.$store.getters.getCache("canvas") != undefined && this.$store.getters.getCache("canvas") != {}){
+                console.log("Here's what I think is appropriate to show the Canvas module for", this.$store.getters.getCache("canvas"));
+                this.ready = true;
+                this.getEnrollments()
+                console.log("Enrollments", this.activelyShowingEnrollments);
+            }
         }
     },
     mounted(){
         setInterval(() => {
-            this.getEnrollments();
+            if(this.ready) this.checkIfReady();
+            else this.getEnrollments();
         }, 1000*20);
-        this.getEnrollments();
+        this.checkIfReady();
     }
 }
 </script>

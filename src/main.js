@@ -43,8 +43,10 @@ const store = new Vuex.Store({
             try{
                 var json = await readTextFile('cache_' + cache + '.json', { dir: BaseDirectory.AppData });
                 this.state.cache[cache] = JSON.parse(json);
+                
             }catch(e){
                 this.state.cache[cache] = {};
+                
                 console.log(e);
             }
 
@@ -107,6 +109,7 @@ const store = new Vuex.Store({
             var baseUrl = this.state.settings.canvas_url;
             var token = this.state.settings.canvas_token;
             var uid = this.state.settings.canvas_uid;
+            if(baseUrl == undefined || token == undefined || uid == undefined) return;
             if(!baseUrl.toLowerCase().includes("http")){
                 baseUrl = "https://" + baseUrl;
             }
@@ -127,6 +130,7 @@ const store = new Vuex.Store({
             var baseUrl = this.state.settings.canvas_url;
             var token = this.state.settings.canvas_token;
             var uid = this.state.settings.canvas_uid;
+            if(baseUrl == undefined || token == undefined || uid == undefined) return;
             if(!baseUrl.toLowerCase().includes("http")){
                 baseUrl = "https://" + baseUrl;
             }
@@ -144,6 +148,7 @@ const store = new Vuex.Store({
             var baseUrl = this.state.settings.canvas_url;
             var token = this.state.settings.canvas_token;
             var uid = this.state.settings.canvas_uid;
+            if(baseUrl == undefined || token == undefined || uid == undefined) return;
             if(!baseUrl.toLowerCase().includes("http")){
                 baseUrl = "https://" + baseUrl;
             }
@@ -157,6 +162,11 @@ const store = new Vuex.Store({
 
             for(var cI = 0; cI < res.data.length; cI++){
                 var e = res.data[cI];
+                if(e.access_restricted_by_date) {
+                    res.data.splice(cI, 1);
+                    cI--;
+                    continue;
+                }
                 if(e.enrollments.length == 0) return;
 
                 var enrollInformation = e.enrollments[0];
@@ -192,6 +202,7 @@ const store = new Vuex.Store({
             var baseUrl = this.state.settings.canvas_url;
             var token = this.state.settings.canvas_token;
             var uid = this.state.settings.canvas_uid;
+            if(baseUrl == undefined || token == undefined || uid == undefined) return;
             if(!baseUrl.toLowerCase().includes("http")){
                 baseUrl = "https://" + baseUrl;
             }

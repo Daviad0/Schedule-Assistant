@@ -25,15 +25,15 @@ import Greet from "./components/Greet.vue";
       <Lottie :src="'Loading.json'" :mode="'loop'" style="width:200px;margin-top:10px;opacity:0.6" :background="'transparent'"/>
       
     </div>
-    <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;height:80vh" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
+    <div class="flex-apart" style="overflow-y:hidden;overflow-x:hidden;margin:0px 40px;align-items: start;flex-wrap: wrap;height:85vh" :style="!loading ? 'max-height:100vh' : 'max-height:0px'">
 
       <Schedule v-if="!loading" @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
-      <div :style="sizeMode == 'schedule-top' ? 'width:50%;height:30vh;justify-content:start;margin-top:5px' : 'width:30%;height:70vh;flex-direction:column;justify-content:start'" class="flex-apart">
-        <Notes style="width:100%" :style="sizeMode == 'schedule-top' ? 'height:100%' : 'height:70%'" @overlay="openOverlay('note', $event)" v-if="!loading" @setcb="setCB('notes', $event)" @encourage="addEncouragement($event)"  />
-        <Canvas style="width:100%" :style="sizeMode == 'schedule-top' ? 'height:100%' : 'height:70%'" v-if="!loading" />
+      <div :style="sizeMode == 'schedule-top' ? 'width:50%;height:30vh;margin-top:20px' : 'width:30%;height:70vh;flex-direction:column;justify-content:start'" class="flex-center">
+        <Notes style="" :style="sizeMode == 'schedule-top' ? 'height:100%;width:30%' : 'height:70%;width:100%'" @overlay="openOverlay('note', $event)" v-if="!loading" @setcb="setCB('notes', $event)" @encourage="addEncouragement($event)"  />
+        <Canvas style="width:70%" :style="sizeMode == 'schedule-top' ? 'height:100%;width:70%' : 'height:70%;width:100%'" v-if="!loading" />
       </div>
       <!-- <Checklist /> -->
-      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:40%;height:30vh' : 'width:30%;height:70vh'" />
+      <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:45%;height:30vh' : 'width:30%;height:70vh'" />
       
       
     </div>
