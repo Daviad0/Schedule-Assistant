@@ -60,8 +60,11 @@
                 <div class="raised-container cursor-pointer" @click="downloadSettings()" style="padding:10px 20px;margin-right:10px">
                     <span class="text f-medium f-bold">Download Settings</span>
                 </div>
-                <div class="raised-container cursor-pointer" @click="importSettings()" style="padding:10px 20px">
+                <div class="raised-container cursor-pointer" @click="importSettings()" style="padding:10px 20px;margin-right:10px">
                     <span class="text f-medium f-bold">Import Settings</span>
+                </div>
+                <div class="raised-container cursor-pointer" @click="restoreBackup()" style="padding:10px 20px">
+                    <span class="text f-medium f-bold">Restore Backup</span>
                 </div>
             </div>
             <div class="flex-center" style="margin-right:25px;margin-bottom:10px;width:100%;justify-content: end;">
@@ -508,6 +511,33 @@ export default {
                 var settingsObject = JSON.parse(settingsString);
                 this.$store.state.settings = settingsObject;
                 this.$store.dispatch("saveSettings");
+
+            }catch(e){
+
+            }
+            
+        },
+        async restoreBackup(){
+            var filePath = await open({
+                filters: [{
+                    name: 'RobosmrtBackup',
+                    extensions: ['json']
+                }]
+            });
+
+            if(filePath == undefined){
+                return;
+            }
+            try{
+                var settingsString = await readTextFile(filePath);
+                var backupObject = JSON.parse(settingsString);
+                var schedule = backupObject.schedule;
+                var checklist = backupObject.checklist;
+                await writeTextFile('schedule.json', JSON.stringify(schedule), { dir: BaseDirectory.AppData });
+                await writeTextFile('checklist.json', JSON.stringify(checklist), { dir: BaseDirectory.AppData });
+                this.$store.state.settings = backupObject.settings;
+                this.$store.dispatch("saveSettings");
+                
 
             }catch(e){
 

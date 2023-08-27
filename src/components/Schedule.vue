@@ -22,7 +22,7 @@
         
                     <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start">
                         <div v-for="dayOfWeek in (this.$store.getters.getSettingValue('sched_week_sun_sat') == 'no' ? [1,2,3,4,5] : [0,1,2,3,4,5,6])" style="width:260px;padding-top:10px;">
-                            <span :class="isDayToday(dayOfWeek) ? 'highlight-container' : 'solid-highlight-container'" style="margin:0px 20px;padding: 8px 16px;" class="text f-medium center block"><t class="f-bold">{{ days[dayOfWeek] }}</t> {{ getDate(dayOfWeek) }}</span>
+                            <span :class="isDayToday(dayOfWeek) ? 'highlight-container anim-bg-main-flash' : 'solid-highlight-container'" style="margin:0px 20px;padding: 8px 16px;" class="text f-medium center block"><t class="f-bold">{{ days[dayOfWeek] }}</t> {{ getDate(dayOfWeek) }}</span>
                             <div style="margin-top:15px;width:100%">
                                 <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'small'" @event="scheduleItemEvent($event)" :wrap="true" v-for="item in getEventsOnDay(dayOfWeek)" style="max-width: 100%;" :key="item.id" :data="item"/>
                                 <span class="text f-medium f-bold center block" style="opacity: 0.7;margin-top:20px" v-if="getEventsOnDay(dayOfWeek).length == 0"><i>No Events</i></span>
@@ -35,15 +35,19 @@
                 
                 </div>
             </div>
-            <div class="flex-center">
-                <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'day' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
+            <div class="flex-center" style="height: 100%;" :style="viewType == 'day' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
+                <div class="flex-apart" style="flex-direction: column;height: 100%;">
+                    <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;">
         
-                    <div class="flex-center" style="flex-wrap: wrap;align-items: start;">
-                        <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in getEventsOnDay((new Date()).getDay())" :key="item.id" :data="item"/>
-                        <span class="text f-medium f-bold center block" style="opacity: 0.7;" v-if="schedule.filter(s => s.startTime < this.endOfToday && s.deleted != true).length == 0"><i>No Events</i></span>
+                        <div class="flex-center" style="flex-wrap: wrap;align-items: start;">
+                            <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in getEventsOnDay((new Date()).getDay())" :key="item.id" :data="item"/>
+                            <span class="text f-medium f-bold center block" style="opacity: 0.7;" v-if="schedule.filter(s => s.startTime < this.endOfToday && s.deleted != true).length == 0"><i>No Events</i></span>
+                        </div>
+                        
                     </div>
-                    
+                    <span class="text f-large f-bold" style="opacity: 0.4;">{{days[(new Date()).getDay()]}} {{ getDate((new Date()).getDay()) }}</span>
                 </div>
+                
             </div>
             
             
