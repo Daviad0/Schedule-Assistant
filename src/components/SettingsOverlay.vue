@@ -76,7 +76,7 @@
     </div>
 </template>
 <script>
-import { save, open } from '@tauri-apps/api/dialog';
+import { save, open, message } from '@tauri-apps/api/dialog';
 import { writeTextFile, BaseDirectory, readTextFile } from '@tauri-apps/api/fs';
 export default {
     name: "SettingsOverlay",
@@ -530,7 +530,7 @@ export default {
                 await writeTextFile('notes.json', JSON.stringify(notes), { dir: BaseDirectory.AppData });
                 this.$store.state.settings = backupObject.settings;
                 this.$store.dispatch("saveSettings");
-                
+                await message("Restart Application to View Data", { title: "Restore Backup" });
 
             }catch(e){
 

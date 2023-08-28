@@ -18,7 +18,7 @@
         </div>
         <div style="height:100%;overflow-y:auto;width:100%">
             <div class="flex-center">
-                <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'week' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
+                <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;" :style="viewType == 'week' ? 'max-height:200vh;opacity:1' : 'max-height:0vh;opacity:0'">
         
                     <div class="flex-center" style="flex-wrap: wrap;justify-content: left;align-items: start">
                         <div v-for="dayOfWeek in (this.$store.getters.getSettingValue('sched_week_sun_sat') == 'no' ? [1,2,3,4,5] : [0,1,2,3,4,5,6])" style="width:260px;padding-top:10px;">
@@ -35,7 +35,7 @@
                 
                 </div>
             </div>
-            <div class="flex-center" style="height: 100%;" :style="viewType == 'day' ? 'max-height:100vh;opacity:1' : 'max-height:0vh;opacity:0'">
+            <div class="flex-center" style="height: 100%;" :style="viewType == 'day' ? 'max-height:200vh;opacity:1' : 'max-height:0vh;opacity:0'">
                 <div class="flex-apart" style="flex-direction: column;height: 100%;">
                     <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;">
         

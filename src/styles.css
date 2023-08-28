@@ -4,10 +4,14 @@
   font-family: Urbanist;
   src: url('Urbanist.ttf');
 }
+@font-face {
+  font-family: LibreFranklin;
+  src: url('LibreFranklin.ttf');
+}
 
 *{
   transition: 0.25s ease-in-out all;
-  font-family: Urbanist, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Urbanist, LibreFranklin, Arial, Helvetica, sans-serif;
   font-weight: 500;
   /* text-align: center; */
 }

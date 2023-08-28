@@ -347,7 +347,7 @@ export default {
             // get most accur
         },
         checkIfReady(){
-            if(this.$store.getters.getCache("canvas") != undefined && this.$store.getters.getCache("canvas") != {}){
+            if(this.$store.getters.getCache("canvas") != undefined && this.$store.getters.getCache("canvas").enrollments != undefined){
                 console.log("Here's what I think is appropriate to show the Canvas module for", this.$store.getters.getCache("canvas"));
                 this.ready = true;
                 this.getEnrollments();
