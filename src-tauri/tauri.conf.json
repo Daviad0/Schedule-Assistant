@@ -7,8 +7,8 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "Dav-Assist",
-    "version": "0.0.0"
+    "productName": "Bonk",
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -49,7 +49,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.robosmrt.dav",
+      "identifier": "com.robosmrt.bonk",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -65,7 +65,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "Dav-Assist",
+        "title": "Bonk",
         "width": 2000,
         "height": 1400,
         "transparent": true,
