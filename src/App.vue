@@ -29,8 +29,8 @@ import Greet from "./components/Greet.vue";
 
       <Schedule v-if="!loading" @setcb="setCB('schedule', $event)" @setsizemode="setSizeMode($event)" :style="sizeMode == 'schedule-top' ? 'width:100%;height:40vh' : 'width:30%;height:70vh'" @popup="openPopupWithData($event.type, $event.data)"/>
       <div :style="sizeMode == 'schedule-top' ? 'width:50%;height:30vh;margin-top:20px' : 'width:30%;height:70vh;flex-direction:column;justify-content:start'" class="flex-center">
-        <Notes style="" :style="sizeMode == 'schedule-top' ? 'height:100%;width:30%' : 'height:70%;width:100%'" @overlay="openOverlay('note', $event)" v-if="!loading" @setcb="setCB('notes', $event)" @encourage="addEncouragement($event)"  />
-        <Canvas style="width:70%" :style="sizeMode == 'schedule-top' ? 'height:100%;width:70%' : 'height:70%;width:100%'" v-if="!loading" />
+        <Notes style="" @setcb="setCB('notes', $event)" :style="sizeMode == 'schedule-top' ? 'height:100%;width:30%' : 'height:30%;width:100%'" @overlay="openOverlay('note', $event)" v-if="!loading" @encourage="addEncouragement($event)"  />
+        <Canvas style="width:70%" :style="sizeMode == 'schedule-top' ? 'height:100%;width:70%' : 'height:60%;width:100%'" v-if="!loading" />
       </div>
       <!-- <Checklist /> -->
       <Checklist v-if="!loading" @setcb="setCB('checklist', $event)" @encourage="addEncouragement($event)" :style="sizeMode == 'schedule-top' ? 'width:45%;height:30vh' : 'width:30%;height:70vh'" />
@@ -78,7 +78,7 @@ import Greet from "./components/Greet.vue";
           <span class="text f-small">%</span>
         </div>
         <div class="flex-center" v-if="bottomPanelMode == 'clock'">
-          <span style="margin:0px 10px" class="text f-medium f-bold">10:05 AM</span>
+          <span style="margin:0px 10px" class="text f-medium f-bold">{{currentTime}}</span>
         </div>
 
 
@@ -104,7 +104,7 @@ import Greet from "./components/Greet.vue";
     </div>
     <div class="overlay">
       <SettingsOverlay @close="showOverlay = false" v-if="showOverlay && overlayToShow == 'settings'"/>
-      <NoteOverlay @close="showOverlay = false" :note="overlayData" v-if="showOverlay && overlayToShow == 'note'"/>
+      <NoteOverlay @close="showOverlay = false" @save="handleSaveNoteOverlay($event.note, $event.mode)" :note="overlayData" v-if="showOverlay && overlayToShow == 'note'"/>
     </div>
   </div>
   
@@ -155,7 +155,8 @@ export default {
       showOverlay: false,
       overlayToShow: null,
       overlayData: null,
-      bottomPanelMode: "leds"
+      bottomPanelMode: "leds",
+      currentTime: ""
     }
   },
   methods: {
@@ -184,6 +185,18 @@ export default {
       this.showOverlay = true;
       
     
+    },
+    handleSaveNoteOverlay(note, mode){
+
+      this.showOverlay = false;
+      if(mode == 'edit'){
+        this.callbacks.notes("editNote", note);
+      }else if(mode == 'create'){
+        this.callbacks.notes("createNote", note);
+      }
+      else if(mode == 'delete'){
+        this.callbacks.notes("deleteNote", note);
+      }
     },
     addEncouragement(text){
       var id = this.generateId();
@@ -304,6 +317,11 @@ export default {
         this.$store.state.notifPermission = permission === 'granted';
       }
     }, 100);
+
+    setInterval(() => {
+      // format as HH:MM AM/PM
+      this.currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    }, 1000);
     
     
     

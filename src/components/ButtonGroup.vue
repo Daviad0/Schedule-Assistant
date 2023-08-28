@@ -6,11 +6,11 @@
             </div>
         </div>
         <div ref="default" @click="setOption($event.srcElement, $event.srcElement.offsetWidth, buttons[selectedindex == undefined ? 0 : selectedindex])" :style="getTheFreakingDefaultWidthYouGoshdarnSonOfA ? 'display:none' : 'display:block'" class="nohighlight-container cursor-pointer" style="margin:5px;width:100%;">
-            <span class="text f-medium" style="pointer-events: none;">{{ buttons[selectedindex == undefined ? 0 : selectedindex] }}</span>
+            <span class="text f-medium block center" style="pointer-events: none;">{{ buttons[selectedindex == undefined ? 0 : selectedindex] }}</span>
         </div>
 
         <div v-for="button in buttons" :ref="'option' + buttons.indexOf(button)" @click="setOption($event.srcElement, $event.srcElement.offsetWidth, button)" class="hover-darken2 nohighlight-container cursor-pointer" style="margin:5px;width:100%;" :style="this.selected == button ? 'background-color:transparent' : ''">
-            <span class="text f-medium" style="pointer-events: none;">{{ button }}</span>
+            <span class="text f-medium block center" style="pointer-events: none;">{{ button }}</span>
         </div>
         
     </div>

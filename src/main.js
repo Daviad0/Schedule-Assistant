@@ -235,6 +235,13 @@ const store = new Vuex.Store({
                 console.log(e);
             }
 
+            try{
+                var json = await readTextFile('notes.json', { dir: BaseDirectory.AppData });
+                backupObject.notes = JSON.parse(json);
+            }catch(e){
+                console.log(e);
+            }
+
             backupObject.settings = this.state.settings;
 
             await writeTextFile('robosmrt-backup.json', JSON.stringify(backupObject), { dir: BaseDirectory.Document });

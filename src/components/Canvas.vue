@@ -14,10 +14,10 @@
             
             <div class="flex-center" style="height:80%;margin-top:10px;width:100%">
                 <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:100%" :style="openTab == 'Stream' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:100%'">
-                    <div class="flex-center" v-if="getStream().filter(s => s.type == 'Message').length == 0" style="margin-top:50px;white-space: nowrap;">
+                    <div class="flex-center" v-if="stream.length == 0" style="margin-top:50px;white-space: nowrap;">
                         <span class="text f-medium center block" style="opacity: 0.7;">Your Stream is Empty :(</span>
                     </div>
-                    <div v-for="streamItem in getStream().filter(s => s.type == 'Message')" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
+                    <div v-for="streamItem in stream" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             
                             <div class="flex-center">
@@ -43,7 +43,7 @@
                     <div v-for="enrollment in activelyShowingEnrollments" style="margin:10px;padding:20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             <div class="flex-center">
-                                <span class="text f-medium f-bold">{{ enrollment.course_code }}</span>
+                                <span class="text f-medium f-bold">{{ enrollment.name }}</span>
                                 <Lottie @click="toggleOpenEnrollment(enrollment)" :src="'Dropdown.json'" :mode="'loop'" style="width:20px;margin-left:10px" :style="openEnrollments.includes(enrollment) ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
                             </div>
                             <div :style="openEnrollments.includes(enrollment) ? 'opacity:0' : 'opacity:1'">
@@ -86,11 +86,11 @@
                     </div>
                 </div>
                 <div style="margin-top:20px;overflow-y: auto;width:100%;overflow-x:hidden;height:100%" :style="openTab == 'Announcements' ? 'max-width:100%;max-height:100%' : 'max-width:0px;max-height:100%'">
-                    <div class="flex-center" style="margin-top:50px;white-space: nowrap;" v-if="getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic').length == 0">
+                    <div class="flex-center" style="margin-top:50px;white-space: nowrap;" v-if="announcements.length == 0">
                         <span class="text f-medium center block" style="opacity: 0.7;">No Announcements to see :(</span>
                     </div>
                     
-                    <div v-for="streamItem in getStream().filter(s => s.type == 'Announcement' || s.type == 'DiscussionTopic')" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
+                    <div v-for="streamItem in announcements" style="margin:10px;padding:10px 20px;white-space: nowrap;overflow-x: none;" class="raised-container">
                         <div class="flex-apart">
                             
                             <div class="flex-center">
@@ -98,6 +98,7 @@
                                 <div class="solid-highlight-container">
                                     <span class="text f-small">{{ getCourseById(streamItem.course_id).name }}</span>
                                 </div>
+                                <Lottie @click="toggleOpenAnnouncement(streamItem.id)" :src="'Dropdown.json'" :mode="'loop'" style="width:20px;margin-left:10px" :style="expandedAnnouncements.includes(streamItem.id) ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
                                 
                                 
                             </div>
@@ -106,7 +107,7 @@
                             <span class="text f-small">{{ streamItem.updated_at == null ? new Date(streamItem.created_at).toLocaleString() : new Date(streamItem.updated_at).toLocaleString() }}</span>
                             
                         </div>
-                        <div class="flex-center">
+                        <div class="flex-center" style="overflow-y:hidden" :style="expandedAnnouncements.includes(streamItem.id) ? 'max-height:100vh' : 'max-height:0px'">
                             <span class="text f-small center block" style="white-space: normal;word-break: break-all;margin:10px" v-html="getDiscussionEntry(streamItem)"></span>
                         </div>
                         
@@ -128,7 +129,10 @@ export default {
             activelyShowingEnrollments: [],
             openEnrollments: [],
             openTab: "Summary",
-            ready: false
+            ready: false,
+            expandedAnnouncements: [],
+            stream: [],
+            announcements: []
         }
     },
     methods: {
@@ -148,6 +152,13 @@ export default {
             //this.ready = true;
 
         },
+        toggleOpenAnnouncement(announcementId){
+            if(this.expandedAnnouncements.includes(announcementId)){
+                this.expandedAnnouncements.splice(this.expandedAnnouncements.indexOf(announcementId), 1);
+            }else{
+                this.expandedAnnouncements.push(announcementId);
+            }
+        },
         toggleOpenEnrollment(enrollment){
             if(this.openEnrollments.includes(enrollment)){
                 this.openEnrollments.splice(this.openEnrollments.indexOf(enrollment), 1);
@@ -165,6 +176,30 @@ export default {
 
             stream = stream.filter(s => !ignoredCourses.includes(s.course_id));
 
+            var maxDaysRecent_Updates = 7;
+            if(this.$store.getters.getSettingValue("canvas_recent_days_show_updates") != undefined){
+                maxDaysRecent_Updates = parseInt(this.$store.getters.getSettingValue("canvas_recent_days_show_updates"));
+            }
+
+            var maxDaysRecent_Announcements = 7;
+            if(this.$store.getters.getSettingValue("canvas_recent_days_show_announcements") != undefined){
+                maxDaysRecent_Announcements = parseInt(this.$store.getters.getSettingValue("canvas_recent_days_show_announcements"));
+            }
+
+            stream = stream.filter(s => {
+                if(s.updated_at == undefined || s.updated_at == null){
+                    s.updated_at = s.created_at;
+                }
+                var diff = new Date().getTime() - new Date(s.updated_at).getTime();
+                if((s.type == "Announcement" || s.type == "DiscussionTopic") && diff > 1000*60*60*24*maxDaysRecent_Announcements){
+                    return false;
+                }
+                if((s.type != "Announcement" && s.type != "DiscussionTopic") && diff > 1000*60*60*24*maxDaysRecent_Updates){
+                    return false;
+                }
+                return true;
+            });
+
 
             stream.sort((a,b) => {
 
@@ -178,7 +213,9 @@ export default {
                 return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
             });
 
-            return stream;
+            this.stream = stream.filter(s => s.type == "Message");
+            this.announcements = stream.filter(s => s.type == "Announcement" || s.type == "DiscussionTopic");
+
         },
         getCourseById(id){
             var cObject = this.$store.getters.getCache("canvas");
@@ -313,7 +350,8 @@ export default {
             if(this.$store.getters.getCache("canvas") != undefined && this.$store.getters.getCache("canvas") != {}){
                 console.log("Here's what I think is appropriate to show the Canvas module for", this.$store.getters.getCache("canvas"));
                 this.ready = true;
-                this.getEnrollments()
+                this.getEnrollments();
+                this.getStream();
                 console.log("Enrollments", this.activelyShowingEnrollments);
             }
         }
@@ -323,6 +361,13 @@ export default {
             if(this.ready) this.checkIfReady();
             else this.getEnrollments();
         }, 1000*20);
+
+        setInterval(() => {
+            if(this.ready) {
+                this.getStream();
+            }
+        
+        }, 1000*5);
         this.checkIfReady();
     }
 }

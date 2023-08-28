@@ -47,7 +47,7 @@
             
             <div style="margin-top:20px;width:100%;height:80%" ref="itemlist">
                 <div class="flex-center" style="align-items: start;height:100%" v-if="viewMode == 'schedule-top'">
-                    <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;"  :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (highPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
+                    <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;" :key="this.filterUpdate"  :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (highPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
                         <div v-for="item in highPriorityItems()">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
@@ -55,7 +55,7 @@
                             
                         </div>
                     </div>
-                    <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;" :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (lowPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
+                    <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;" :key="this.filterUpdate" :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (lowPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
                         <div v-for="item in lowPriorityItems()">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
@@ -65,7 +65,7 @@
                     </div>
                     
                 </div>
-                <div v-if="viewMode == 'schedule-side'" style="overflow-y:auto;" :style="showExtraDetails ? 'max-height:80%' : 'max-height:90%'">
+                <div v-if="viewMode == 'schedule-side'" style="overflow-y:auto;" :key="this.filterUpdate" :style="showExtraDetails ? 'max-height:80%' : 'max-height:90%'">
                     <div v-for="item in properlyPrioritizedItems()" >
                     
                         <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
@@ -92,7 +92,9 @@ export default {
             showExtraDetails: false,
             usedCategories: [],
             viewMode: "schedule-side",
-            notifsSentForIds: []
+            notifsSentForIds: [],
+            filter: "",
+            filterUpdate: 0
         }
     },
     methods: {
@@ -114,6 +116,11 @@ export default {
                 
 
             }
+        },
+        updateFilter(){
+            this.filter = this.$refs.filter.value;
+            this.filterUpdate++;
+            console.log("FILTER UPDATE", this.filter)
         },
         updateUsedCategories(){
             this.usedCategories = this.items.map(item => item.category).filter((value, index, self) => self.indexOf(value) === index);
@@ -219,6 +226,8 @@ export default {
         highPriorityItems(){
             var items = this.items.filter(item => item.dueAt != undefined);
             items.sort((a, b) => a.dueAt - b.dueAt);
+            items = items.filter(item => item.name.includes(this.filter) || item.category.includes(this.filter) || (item.extra != undefined && item.extra.includes(this.filter)));
+            console.log("UPDATED FILTER ITEMS", items)
             return items;
         
         },
@@ -226,7 +235,8 @@ export default {
             var items = this.items.filter(item => item.dueAt == undefined);
 
             items.sort((a, b) => a.createdAt - b.createdAt);
-
+            items = items.filter(item => item.name.includes(this.filter) || item.category.includes(this.filter) || (item.extra != undefined && item.extra.includes(this.filter)));
+            console.log("UPDATED FILTER ITEMS", items)
             return this.items.filter(item => item.dueAt == undefined);
         },
         properlyPrioritizedItems(){
@@ -269,6 +279,12 @@ export default {
         this.readSchedule();
 
         this.$emit("setcb", this.handleEventsFromAbove);
+        setTimeout(() => {
+            this.$refs.filter.addEventListener("keyup", () => {
+                this.updateFilter();
+            });
+            
+        }, 500);
 
         setInterval(() => {
             this.checkForAnyNotifs();

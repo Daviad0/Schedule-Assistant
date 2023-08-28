@@ -33,7 +33,7 @@
     <div class="raised-container" v-if="size == 'small'" style="overflow:hidden" :style="closing ? 'margin:0px;max-width:0px;max-height:0px;padding:0px;min-width:0px;border:0px solid transparent' : 'padding:10px;min-width:100px;max-width:500px;max-height:500px;margin:5px;margin-top:10px'" :class="shouldFlash ? 'anim-border-main-flash':(isActive ? 'solid-border' : 'transparent-border')">
         <div class="flex-center" style="margin-top:5px">
             
-            <div>
+            <div style="text-align: center;">
                 <span class="text f-small f-bold center" style="white-space:break-spaces;">{{data.title}}</span>
             </div>
         </div>

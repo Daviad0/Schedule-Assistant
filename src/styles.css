@@ -413,3 +413,9 @@ input:disabled{
 .active {
   color: #6200ff !important;
 }
+.CodeMirror-cursor {
+  border-left: 1px solid #ffffff;
+}
+.CodeMirror-selectedtext{
+  color: #0f0020;
+}

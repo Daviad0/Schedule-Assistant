@@ -13,6 +13,17 @@
             </div>
             
         </div>
+        <div class="solid-border empty-container" style="margin:15px 10px" v-if="this.data != undefined">
+            <div class="flex-apart" style="margin:10px">
+                <span class="text f-medium f-bold">{{ data.title }}</span>
+                <span class="text f-medium">{{ formatDateTime(data.startTime) }} - {{ formatDateTime(data.endTime) }}</span>
+            </div>
+            
+            <div class="flex-center" style="margin:10px">
+                <span class="text f-small" v-if="data.recurringData == undefined"><i>Happening on {{ formatDateString(data.startTime) }}</i></span>
+                <span class="text f-small" v-if="data.recurringData != undefined"><i>Recurring on {{ formatMultiDays(data.recurringData.daysOfWeek) }} until {{ data.recurringData.endDate.toLocaleString() }}</i></span>
+            </div>
+        </div>
         <div class="flex-apart" style="margin:10px 5px">
             <div style="width:50%">
                 <span class="text f-small" style="text-align: left;margin-left: 10px;margin-bottom:2px">Event Title</span>
@@ -152,6 +163,36 @@ export default {
 
 
         },
+        formatDateTime(date){
+            // return in HH:MM AM/PM format without date
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            return hours + ':' + minutes + ' ' + ampm;
+        },
+        formatDateString(date){
+            var dateString = date.toDateString();
+
+            return dateString.substring(0, dateString.length - 5);
+        },
+        formatMultiDays(days){
+            var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            var daysString = "";
+            for(var i = 0; i < days.length; i++){
+                daysString += daysOfWeek[days[i]];
+                if(i != days.length - 1){
+                    if(i == days.length - 2)
+                        daysString += " and ";
+                    else
+                        daysString += ", ";
+                    
+                }
+            }
+            return daysString;
+        },
         selectDayOfWeek(day){
             if(this.daysOfWeekSelected.includes(day)){
                 this.daysOfWeekSelected.splice(this.daysOfWeekSelected.indexOf(day), 1);
@@ -171,6 +212,7 @@ export default {
             if(!this.validToCreate) return;
 
 
+            
 
             if(this.eventObject['eventMode'] == 'single'){
                 var newObject = {
@@ -190,6 +232,12 @@ export default {
             var startDate = new Date(this.eventObject['startDate'] + " " + this.eventObject['startTime']);
             var endDate = new Date(this.eventObject['endDate'] + " " + this.eventObject['endTime']);
             var id = this.generateId();
+
+            if(this.data != undefined){
+                this.$emit('confirm', {data: this.data, type:'deleteAll'});
+            }
+
+
             // loop through each day from start date to end date
             while(startDate <= endDate){
                 // check if the day is selected

@@ -162,28 +162,28 @@ export default {
 
                     ]
                 },
-                {
-                    id: 'sched_snooze_item_mode', // done
-                    display: 'Item Snoozing Function',
-                    type: 'dropdown',
-                    options: [
-                        {
-                            id: 'enable_hide',
-                            display: 'Enable, Hide Item'
-                        },
-                        {
-                            id: 'enable_minimize',
-                            display: 'Enable, Minimize Item'
-                        },
-                        {
-                            id: 'disable',
-                            display: 'Disable'
-                        }
+                // {
+                //     id: 'sched_snooze_item_mode', // done
+                //     display: 'Item Snoozing Function',
+                //     type: 'dropdown',
+                //     options: [
+                //         {
+                //             id: 'enable_hide',
+                //             display: 'Enable, Hide Item'
+                //         },
+                //         {
+                //             id: 'enable_minimize',
+                //             display: 'Enable, Minimize Item'
+                //         },
+                //         {
+                //             id: 'disable',
+                //             display: 'Disable'
+                //         }
 
 
-                    ]
+                //     ]
 
-                },
+                // },
                 {
                     id: 'sched_flash_up_next', //done
                     display: 'Minutes Before to Flash Up Next',
@@ -366,27 +366,6 @@ export default {
                     restricted: true
                 },
                 {
-                    id: 'canvas_show_stream_items',
-                    display: 'Show Item Types on "Stream"',
-                    type: 'multi',
-                    options: [
-                        {
-                            id: 'announcement',
-                            display: 'Announcements'
-                        },
-                        {
-                            id: 'message',
-                            display: 'Messages'
-                        },
-                        {
-                            id: 'discussiontopic',
-                            display: 'Discussion Topic'
-                        }
-
-
-                    ]
-                },
-                {
                     id: 'canvas_ignore_courses',
                     display: 'Ignore Announcements & Updates from Courses',
                     type: 'multi',
@@ -406,7 +385,7 @@ export default {
                         enrollments.forEach(e => {
                             options.push({
                                 id: e.id,
-                                display: e.course_code
+                                display: e.name
                             });
                         });
 
@@ -415,9 +394,21 @@ export default {
                 },
                 {
                     id: 'canvas_max_days_advance',
-                    display: 'Show Items in Days in Advance',
+                    display: 'Show TODO Items in Days in Advance',
                     type: 'number',
                     placeholder: '7 Days'
+                },
+                {
+                    id: 'canvas_recent_days_show_updates',
+                    display: 'Show Updates after Number of Days',
+                    type: 'number',
+                    placeholder: '3 Days'
+                },
+                {
+                    id: 'canvas_recent_days_show_announcements',
+                    display: 'Show Updates after Number of Days',
+                    type: 'number',
+                    placeholder: '3 Days'
                 },
 
 
@@ -533,8 +524,10 @@ export default {
                 var backupObject = JSON.parse(settingsString);
                 var schedule = backupObject.schedule;
                 var checklist = backupObject.checklist;
+                var notes = backupObject.notes;
                 await writeTextFile('schedule.json', JSON.stringify(schedule), { dir: BaseDirectory.AppData });
                 await writeTextFile('checklist.json', JSON.stringify(checklist), { dir: BaseDirectory.AppData });
+                await writeTextFile('notes.json', JSON.stringify(notes), { dir: BaseDirectory.AppData });
                 this.$store.state.settings = backupObject.settings;
                 this.$store.dispatch("saveSettings");
                 

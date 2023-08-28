@@ -17,7 +17,7 @@
                 <span class="text f-medium">{{ formatDateTime(data.startTime) }} - {{ formatDateTime(data.endTime) }}</span>
             </div>
             
-            <div class="flex-center" style="margin:10px">
+            <div class="flex-center" style="margin:10px;text-align: center;">
                 <span class="text f-small" v-if="this.deleteMode == 'Only This Event'"><i>Happening on {{ formatDateString(data.startTime) }}</i></span>
                 <span class="text f-small" v-if="this.deleteMode == 'All Future Occurances' && data.recurringData != undefined"><i>Recurring on {{ formatMultiDays(data.recurringData.daysOfWeek) }} until {{ data.recurringData.endDate.toLocaleString() }}</i></span>
             </div>
@@ -59,7 +59,7 @@ export default {
             var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             var daysString = "";
             for(var i = 0; i < days.length; i++){
-                daysString += days[i];
+                daysString += daysOfWeek[days[i]];
                 if(i != days.length - 1){
                     if(i == days.length - 2)
                         daysString += " and ";
