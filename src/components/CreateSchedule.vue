@@ -19,7 +19,7 @@
                 <span class="text f-medium">{{ formatDateTime(data.startTime) }} - {{ formatDateTime(data.endTime) }}</span>
             </div>
             
-            <div class="flex-center" style="margin:10px">
+            <div class="flex-center" style="margin:10px;text-align: center;">
                 <span class="text f-small" v-if="data.recurringData == undefined"><i>Happening on {{ formatDateString(data.startTime) }}</i></span>
                 <span class="text f-small" v-if="data.recurringData != undefined"><i>Recurring on {{ formatMultiDays(data.recurringData.daysOfWeek) }} until {{ data.recurringData.endDate.toLocaleString() }}</i></span>
             </div>

@@ -55,13 +55,13 @@ export default {
             this.saveNotes();
         },
         async saveNotes(){
-            await writeTextFile('notes.json', JSON.stringify(this.documents), { dir: BaseDirectory.AppData });
+            await writeTextFile('notes.json', JSON.stringify(this.documents), { dir: BaseDirectory.Config });
             this.$store.dispatch("backup");
         },
         async readNotes(){
             var objects = [];
             try{
-                var notes = await readTextFile('notes.json', { dir: BaseDirectory.AppData });
+                var notes = await readTextFile('notes.json', { dir: BaseDirectory.Config });
                 objects = JSON.parse(notes);
             }catch(e){
                 console.log(e);

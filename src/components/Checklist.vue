@@ -184,13 +184,13 @@ export default {
             return messages[Math.floor(Math.random() * messages.length)];
         },
         async saveChecklist(){
-            await writeTextFile('checklist.json', JSON.stringify(this.items), { dir: BaseDirectory.AppData });
+            await writeTextFile('checklist.json', JSON.stringify(this.items), { dir: BaseDirectory.Config });
             this.$store.dispatch("backup");
         },
         async readSchedule(){
             var objects = [];
             try{
-                var checklist = await readTextFile('checklist.json', { dir: BaseDirectory.AppData });
+                var checklist = await readTextFile('checklist.json', { dir: BaseDirectory.Config });
                 objects = JSON.parse(checklist);
             }catch(e){
                 console.log(e);

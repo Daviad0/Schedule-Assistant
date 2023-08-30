@@ -29,7 +29,7 @@ const store = new Vuex.Store({
             
             console.log("Loading settings");
             try{
-                var json = await readTextFile('settings.json', { dir: BaseDirectory.AppData });
+                var json = await readTextFile('settings.json', { dir: BaseDirectory.Config });
                 this.state.settings = JSON.parse(json);
             }catch(e){
                 console.log(e);
@@ -41,7 +41,7 @@ const store = new Vuex.Store({
         async loadCache({state}, cache){
             console.log(cache)
             try{
-                var json = await readTextFile('cache_' + cache + '.json', { dir: BaseDirectory.AppData });
+                var json = await readTextFile('cache_' + cache + '.json', { dir: BaseDirectory.Config });
                 this.state.cache[cache] = JSON.parse(json);
                 
             }catch(e){
@@ -53,12 +53,12 @@ const store = new Vuex.Store({
         },
         async saveCache({state}, cache){
             var json = JSON.stringify(this.state.cache[cache]);
-            await writeTextFile('cache_' + cache + '.json', json, { dir: BaseDirectory.AppData });
+            await writeTextFile('cache_' + cache + '.json', json, { dir: BaseDirectory.Config });
         },
         async saveSettings() {
             console.log("Saving settings");
             var json = JSON.stringify(this.state.settings);
-            await writeTextFile('settings.json', json, { dir: BaseDirectory.AppData });
+            await writeTextFile('settings.json', json, { dir: BaseDirectory.Config });
         },
         async canvas_getUserID(){
             var baseUrl = this.state.settings.canvas_url;
@@ -222,21 +222,21 @@ const store = new Vuex.Store({
             var shouldBackup = this.state.settings["general_auto_backup"] == "yes";
 
             try{
-                var json = await readTextFile('schedule.json', { dir: BaseDirectory.AppData });
+                var json = await readTextFile('schedule.json', { dir: BaseDirectory.Config });
                 backupObject.schedule = JSON.parse(json);
             }catch(e){
                 console.log(e);
             }
 
             try{
-                var json = await readTextFile('checklist.json', { dir: BaseDirectory.AppData });
+                var json = await readTextFile('checklist.json', { dir: BaseDirectory.Config });
                 backupObject.checklist = JSON.parse(json);
             }catch(e){
                 console.log(e);
             }
 
             try{
-                var json = await readTextFile('notes.json', { dir: BaseDirectory.AppData });
+                var json = await readTextFile('notes.json', { dir: BaseDirectory.Config });
                 backupObject.notes = JSON.parse(json);
             }catch(e){
                 console.log(e);
