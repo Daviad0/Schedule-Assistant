@@ -31,7 +31,7 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APPDATA/*", "$DOCUMENT/*" ]
+        "scope": ["$APPDATA/*","$CONFIG/*", "$DOCUMENT/*", "$DATA/*", "$DATA/com.robosmrt.bonk/*" ]
       },
       "window": {
         "startDragging": true,
@@ -44,6 +44,9 @@
         "scope": ["https://**"]
       },
       "notification": {
+        "all": true
+      },
+      "path": {
         "all": true
       }
     },

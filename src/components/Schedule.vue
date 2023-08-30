@@ -154,13 +154,13 @@ export default {
             this.saveSchedule();
         },
         async saveSchedule(){
-            await writeTextFile('schedule.json', JSON.stringify(this.schedule), { dir: BaseDirectory.Config });
+            await writeTextFile('schedule.json', JSON.stringify(this.schedule), { dir: BaseDirectory.AppData });
             this.$store.dispatch("backup");
         },
         async readSchedule(){
             var objects = [];
             try{
-                var schedule = await readTextFile('schedule.json', { dir: BaseDirectory.Config });
+                var schedule = await readTextFile('schedule.json', { dir: BaseDirectory.AppData });
                 objects = JSON.parse(schedule);
             }catch(e){
                 console.log(e);

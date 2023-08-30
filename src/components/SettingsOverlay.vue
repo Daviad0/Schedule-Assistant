@@ -525,9 +525,9 @@ export default {
                 var schedule = backupObject.schedule;
                 var checklist = backupObject.checklist;
                 var notes = backupObject.notes;
-                await writeTextFile('schedule.json', JSON.stringify(schedule), { dir: BaseDirectory.Config });
-                await writeTextFile('checklist.json', JSON.stringify(checklist), { dir: BaseDirectory.Config });
-                await writeTextFile('notes.json', JSON.stringify(notes), { dir: BaseDirectory.Config });
+                await writeTextFile('schedule.json', JSON.stringify(schedule), { dir: BaseDirectory.AppData });
+                await writeTextFile('checklist.json', JSON.stringify(checklist), { dir: BaseDirectory.AppData });
+                await writeTextFile('notes.json', JSON.stringify(notes), { dir: BaseDirectory.AppData });
                 this.$store.state.settings = backupObject.settings;
                 this.$store.dispatch("saveSettings");
                 await message("Restart Application to View Data", { title: "Restore Backup" });

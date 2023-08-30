@@ -129,9 +129,9 @@ import DeleteScheduleItem from "./components/DeleteScheduleItem.vue";
 import { appWindow } from "@tauri-apps/api/window";
 import { Command } from '@tauri-apps/api/shell';
 
-import { writeTextFile, BaseDirectory, readTextFile } from '@tauri-apps/api/fs';
+import { writeTextFile, BaseDirectory, readTextFile, createDir } from '@tauri-apps/api/fs';
 import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
-
+import { sep } from '@tauri-apps/api/path';
 
 export default {
   name: "App",
@@ -303,6 +303,17 @@ export default {
     }, 2000);
 
     setTimeout(async () => {
+      try{
+        await createDir("com.robosmrt.bonk",{
+          dir: BaseDirectory.Data,
+          recursive: true
+        });
+      }
+      catch(e){
+
+      }
+      
+
       await this.$store.dispatch("loadSettings");
       await this.$store.dispatch("loadCache", "canvas");
       
@@ -322,8 +333,6 @@ export default {
       // format as HH:MM AM/PM
       this.currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
     }, 1000);
-    
-    
     
 
 
