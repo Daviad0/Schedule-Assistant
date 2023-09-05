@@ -354,6 +354,9 @@ export default {
                 this.getStream();
                 console.log("Enrollments", this.activelyShowingEnrollments);
             }
+        },
+        updateThings(){
+            this.$store.dispatch("canvas_updateCache");
         }
     },
     mounted(){
@@ -364,7 +367,10 @@ export default {
 
         setInterval(() => {
             if(this.ready) {
+                this.updateThings();
                 this.getStream();
+                this.getEnrollments();
+                
             }
         
         }, 1000*5);

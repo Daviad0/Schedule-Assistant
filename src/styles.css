@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: Urbanist;
-  src: url('Urbanist.ttf');
+  src: url('../public/Urbanist.ttf');
 }
 @font-face {
   font-family: LibreFranklin;

@@ -5,10 +5,11 @@
                 <div class="flex-center" :style="data.checkedAt != undefined ? 'opacity:0.7' : 'opacity:1'" style="justify-content: left;">
                     <span class="text f-medium f-bold" :style="data.checkedAt != undefined ? 'text-decoration: line-through;' : ''" style="text-align: left;margin-right:10px;white-space:normal;word-break: break-all;">{{ data.name }}</span>
                     <Tag :name="data.category" v-if="data.category != ''"/>
-                    <Lottie @click="this.extraOpen = !this.extraOpen" :src="'Dropdown.json'" v-if="this.data.extra != undefined" :mode="'loop'" style="width:20px;margin-left:5px" :style="extraOpen ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
+                    <Lottie @click="this.extraOpen = !this.extraOpen" :src="'Dropdown.json'" v-if="this.data.extra != undefined || this.data.dueAt != undefined" :mode="'loop'" style="width:20px;margin-left:5px" :style="extraOpen ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
                     
                 </div>  
                 <div style="overflow-y:none" :style="extraOpen ? 'max-height:300px;opacity:1;margin:10px' : 'max-height:0px;opacity:0;margin:0px'">
+                    <span class="text f-small block" v-if="this.data.dueAt != undefined" style="text-align: left;margin-bottom: 10px;"><i>Due at {{ this.data.dueAt.toLocaleString() }}</i></span>
                     <span class="text f-small" v-if="this.data.extra != undefined" style="text-align: left" v-html="replaceTextLinks(this.data.extra)"></span>
                 </div>
                 <div v-if="data.dueAt != undefined" style="justify-content: left;" class="flex-center" >

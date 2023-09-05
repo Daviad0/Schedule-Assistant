@@ -48,7 +48,7 @@
             <div style="margin-top:20px;width:100%;height:80%" ref="itemlist">
                 <div class="flex-center" style="align-items: start;height:100%" v-if="viewMode == 'schedule-top'">
                     <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;" :key="this.filterUpdate"  :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (highPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
-                        <div v-for="item in highPriorityItems()">
+                        <div v-for="item in highPriorityItems()" :key="item.id">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
                             
@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <div style="width:100%;overflow-y:auto;overflow-x:hidden;white-space: nowrap;" :key="this.filterUpdate" :style="(showExtraDetails ? 'max-height:60%;' : 'max-height:80%;') + (lowPriorityItems().length > 0 ? 'max-width:100%' : 'max-width:0%')">
-                        <div v-for="item in lowPriorityItems()">
+                        <div v-for="item in lowPriorityItems()" :key="item.id">
                     
                             <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
                             
@@ -66,7 +66,7 @@
                     
                 </div>
                 <div v-if="viewMode == 'schedule-side'" style="overflow-y:auto;" :key="this.filterUpdate" :style="showExtraDetails ? 'max-height:80%' : 'max-height:90%'">
-                    <div v-for="item in properlyPrioritizedItems()" >
+                    <div v-for="item in properlyPrioritizedItems()" :key="item.id">
                     
                         <ChecklistItem @event="handleChecklistItem($event)" :data="item"/>
                         
@@ -117,6 +117,10 @@ export default {
 
             }
         },
+        generateId(){
+            return Math.random().toString(36).substr(2, 9);
+        
+        },
         updateFilter(){
             this.filter = this.$refs.filter.value;
             this.filterUpdate++;
@@ -141,7 +145,8 @@ export default {
                 createdAt: new Date(),
                 dueAt: due == "" ? undefined : new Date(due),
                 category: tag,
-                extra: extra == "" ? undefined : extra
+                extra: extra == "" ? undefined : extra,
+                id: this.generateId()
             }
 
             this.items.push(item);
@@ -164,8 +169,13 @@ export default {
         handleChecklistItem(event){
             if(event.event == "checked"){
                 // replace item in list with checked event.data
-                var index = this.items.findIndex(item => item.createdAt == event.data.createdAt && item.name == event.data.name);
-                this.items[index] = event.data;
+                this.items = this.items.map(item => {
+                    if(item.id == event.data.id){
+                        return event.data;
+                    }
+                    return item;
+                });
+                
 
                 if(event.data.checkedAt != undefined){
                     this.sendEncouragement(this.randomEncouragementMessage());
@@ -173,9 +183,10 @@ export default {
                 
             }
             else if(event.event == "deleted"){
-                // remove item from list
-                var index = this.items.findIndex(item => item.createdAt == event.data.createdAt && item.name == event.data.name);
-                if(index != -1) this.items.splice(index, 1);
+                // remove item from list without index
+                console.log("DELETING CHECKLIST ITEM", event.data)
+                if(event.data.checkedAt == undefined) return;
+                this.items = this.items.filter(item => item.id != event.data.id);
             }
             this.saveChecklist();
         },
