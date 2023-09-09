@@ -48,29 +48,59 @@
   align-items: center;
 }
 
-.f-tiny{
-  font-size: .8rem;
+/* If screen width is more than 800px*/
+@media only screen and (min-width: 800px) {
+  .f-tiny{
+    font-size: .8rem;
+  }
+  .f-small{
+    font-size: 1rem;
+  
+  }
+  
+  .f-medium{
+    font-size: 1.2rem;
+  }
+  
+  .f-large{
+    font-size: 1.5rem;
+  }
+  
+  .f-xlarge{
+    font-size: 2rem;
+  }
+  
+  .f-bold{
+    font-weight: 700;
+  }
 }
-.f-small{
-  font-size: 1rem;
+@media only screen and (max-width: 800px) {
+  .f-tiny{
+    font-size: .6rem;
+  }
+  .f-small{
+    font-size: .8rem;
+  
+  }
+  
+  .f-medium{
+    font-size: 1rem;
+  }
+  
+  .f-large{
+    font-size: 1.2rem;
+  }
+  
+  .f-xlarge{
+    font-size: 1.5rem;
+  }
+  
+  .f-bold{
+    font-weight: 700;
+  }
+}
 
-}
 
-.f-medium{
-  font-size: 1.2rem;
-}
-
-.f-large{
-  font-size: 1.5rem;
-}
-
-.f-xlarge{
-  font-size: 2rem;
-}
-
-.f-bold{
-  font-weight: 700;
-}
 
 .dotted-line{
   border-bottom: 3px dotted #ffffff50;

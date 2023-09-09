@@ -3,7 +3,7 @@
         <div class="flex-apart">
             <div style="width:100%">
                 <div class="flex-center" :style="data.checkedAt != undefined ? 'opacity:0.7' : 'opacity:1'" style="justify-content: left;">
-                    <span class="text f-medium f-bold" :style="data.checkedAt != undefined ? 'text-decoration: line-through;' : ''" style="text-align: left;margin-right:10px;white-space:normal;word-break: break-all;">{{ data.name }}</span>
+                    <span class="text f-medium f-bold" :style="(data.checkedAt != undefined ? 'text-decoration: line-through;' : '') + (data.category != '' ? '' : 'margin-top:10px')" style="text-align: left;margin-right:10px;white-space:normal;word-break: break-all;">{{ data.name }}</span>
                     <Tag :name="data.category" v-if="data.category != ''"/>
                     <Lottie @click="this.extraOpen = !this.extraOpen" :src="'Dropdown.json'" v-if="this.data.extra != undefined || this.data.dueAt != undefined" :mode="'loop'" style="width:20px;margin-left:5px" :style="extraOpen ? 'transform:rotate(180deg)' : 'transform:rotate(0deg)'" :background="'transparent'"/>
                     

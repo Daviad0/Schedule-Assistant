@@ -37,9 +37,9 @@
             </div>
             <div class="flex-center" style="height: 100%;" :style="viewType == 'day' ? 'max-height:200vh;opacity:1' : 'max-height:0vh;opacity:0'">
                 <div class="flex-apart" style="flex-direction: column;height: 100%;">
-                    <div style="border-radius: 16px;overflow:hidden;white-space: nowrap;">
+                    <div style="overflow:hidden;white-space: nowrap;height: 100%;">
         
-                        <div class="flex-center" style="flex-wrap: wrap;align-items: start;">
+                        <div class="flex-center" style="flex-wrap: wrap;align-items: start;height: 100%;overflow-y: auto;">
                             <ScheduleItem @remove="completelyRemoveScheduleItem($event)" :size="'regular'" @event="scheduleItemEvent($event)" v-for="item in getEventsOnDay((new Date()).getDay())" :key="item.id" :data="item"/>
                             <span class="text f-medium f-bold center block" style="opacity: 0.7;" v-if="schedule.filter(s => s.startTime < this.endOfToday && s.deleted != true).length == 0"><i>No Events</i></span>
                         </div>
@@ -191,9 +191,10 @@ export default {
         },
         getEventsOnDay(dayOfWeek){
             var events = [];
+            var startOfWeek = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay(), 0, 0, 0, 0);
             this.schedule.forEach(e => {
                 // check if the event is on day of week and is on THIS WEEK 
-                if(e.startTime.getDay() == dayOfWeek && e.startTime < this.endOfWeek && e.deleted != true){
+                if(e.startTime.getDay() == dayOfWeek && e.startTime < this.endOfWeek && e.startTime > startOfWeek && e.deleted != true){
                     events.push(e);
                 }
             });
